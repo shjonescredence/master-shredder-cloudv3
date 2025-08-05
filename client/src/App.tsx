@@ -1,76 +1,100 @@
-/* App container and layout */
-.app-container {
-  display: flex;
-  justify-content: center;     /* center children horizontally */
-  align-items: center;         /* center children vertically */
-  height: 100vh;
-  width: 100vw;
-  background-color: #f5f7fa;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+import React, { useState, useEffect } from 'react';
+import { TokenManager } from './components/TokenManager';
+import { ChatInterface } from './components/ChatInterface';
+import { SettingsPanel } from './components/SettingsPanel';
+import './App.css';
+
+interface AppConfig {
+  defaultModel: string;
+  allowUserTokens: boolean;
+  systemTokenAvailable: boolean;
+  environment: string;
+  version: string;
 }
 
-/* Centered layout for columns */
-.centered-layout {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: stretch;
-  gap: 20px;
-  max-width: 1200px;
-  width: 100%;
-  height: 90vh;
+function App() {
+  const [userApiKey, setUserApiKey] = useState<string>('');
+  const [isTokenValid, setIsTokenValid] = useState<boolean>(false);
+  const [selectedModel, setSelectedModel] = useState<string>('gpt-4-turbo');
+  const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Load app configuration on startup
+  useEffect(() => {
+    fetchAppConfig();
+  }, []);
+
+  const fetchAppConfig = async () => {
+    try {
+      const response = await fetch('/api/settings/config');
+      if (response.ok) {
+        const config = await response.json();
+        setAppConfig(config.config);
+        setSelectedModel(config.config.defaultModel);
+      }
+    } catch (error) {
+      console.error('Failed to load app config:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTokenValidated = (token: string, valid: boolean) => {
+    setUserApiKey(token);
+    setIsTokenValid(valid);
+  };
+
+  if (loading) {
+    return (
+      <div className="app-container loading">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Loading Master Shredder...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-container">
+      <div className="centered-layout">
+        {/* Token Management Panel */}
+        <div className="panel">
+          <TokenManager
+            onTokenValidated={handleTokenValidated}
+            currentToken={userApiKey}
+            isValid={isTokenValid}
+            systemTokenAvailable={appConfig?.systemTokenAvailable || false}
+          />
+        </div>
+
+        {/* Main Chat Interface */}
+        <div className="panel chat-panel">
+          <ChatInterface
+            userApiKey={userApiKey}
+            isTokenValid={isTokenValid}
+            selectedModel={selectedModel}
+            systemTokenAvailable={appConfig?.systemTokenAvailable || false}
+          />
+        </div>
+
+        {/* Settings Panel */}
+        <div className="panel">
+          <SettingsPanel
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            userApiKey={userApiKey}
+            appConfig={appConfig}
+          />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="app-footer">
+        <p>Master Shredder Cloud v{appConfig?.version || '3.0'} | {appConfig?.environment || 'development'}</p>
+      </footer>
+    </div>
+  );
 }
 
-/* Panel style for all columns */
-.panel {
-  background-color: #1f1f1f;
-  border-radius: 12px;
-  padding: 16px;
-  flex: 1 1 0;
-  max-width: 360px;
-  height: 100%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  overflow-y: auto;
-  color: #fff;
-}
-
-/* Chat container */
-.chat-container {
-  /* Remove flex: 1, let .panel handle sizing */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  overflow-y: auto;
-  padding: 0;
-  background: none;
-  scroll-behavior: smooth;
-}
-
-/* Input area */
-.input-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: #232323;
-  border-top: 1px solid #333;
-  gap: 10px;
-  width: 100%;
-}
-
-/* Welcome message - already centered well, just ensure it's constrained */
-.welcome-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 40px auto;
-  max-width: 500px;
-  padding: 30px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
+export default App;
