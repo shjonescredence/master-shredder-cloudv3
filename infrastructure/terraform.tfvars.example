@@ -1,0 +1,19 @@
+# Terraform configuration for easier deployment
+# This file defines environment-specific values
+
+# Development environment
+# Copy this to terraform.tfvars and customize for your needs
+aws_region    = "us-east-1"
+environment   = "production"
+app_name      = "master-shredder-v3"
+desired_count = 2
+cpu          = 512
+memory       = 1024
+log_retention_days = 7
+
+common_tags = {
+  Project     = "Master Shredder Cloud v3"
+  ManagedBy   = "Terraform"
+  Owner       = "Credence Management Solutions"
+  Environment = "production"
+}
