@@ -64,9 +64,12 @@ async function getOpenAIClient(userApiKey?: string): Promise<OpenAI> {
  * @returns boolean indicating if key format is valid
  */
 export function validateApiKey(apiKey: string): boolean {
-  // OpenAI API keys start with 'sk-' and are typically 51 characters
-  const apiKeyRegex = /^sk-[a-zA-Z0-9]{48,}$/;
-  return apiKeyRegex.test(apiKey);
+  // OpenAI API keys can be:
+  // - Legacy format: sk-[48+ characters]
+  // - New format: sk-proj-[100+ characters]
+  // Both should start with 'sk-' and contain only alphanumeric characters, hyphens, and underscores
+  const apiKeyRegex = /^sk-[a-zA-Z0-9\-_]{20,200}$/;
+  return apiKeyRegex.test(apiKey) && apiKey.length >= 20;
 }
 
 /**

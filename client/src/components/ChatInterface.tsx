@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ChatInterface.css';
+import { FileUpload } from './FileUpload';
 
 interface ChatMessage {
   id: string;
@@ -8,6 +9,16 @@ interface ChatMessage {
   timestamp: Date;
   tokenSource?: 'user' | 'system';
   model?: string;
+  attachedFiles?: string[]; // File names that were attached to this message
+}
+
+interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  content: string;
+  uploadDate: Date;
 }
 
 interface ChatInterfaceProps {
@@ -15,18 +26,24 @@ interface ChatInterfaceProps {
   isTokenValid: boolean;
   selectedModel: string;
   systemTokenAvailable: boolean;
+  initialPrompt?: string;
+  onPromptUsed?: () => void;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   userApiKey,
   isTokenValid,
   selectedModel,
-  systemTokenAvailable
+  systemTokenAvailable,
+  initialPrompt,
+  onPromptUsed
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [showFileUpload, setShowFileUpload] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -37,18 +54,51 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     scrollToBottom();
   }, [messages]);
 
+  // Handle initial prompt from Capture Assistant
+  useEffect(() => {
+    if (initialPrompt && initialPrompt.trim()) {
+      setInputMessage(initialPrompt);
+      onPromptUsed?.();
+    }
+  }, [initialPrompt, onPromptUsed]);
+
   const canSendMessage = () => {
     return (isTokenValid && userApiKey) || systemTokenAvailable;
+  };
+
+  const handleFilesUploaded = (newFiles: UploadedFile[]) => {
+    setUploadedFiles(prev => [...prev, ...newFiles]);
+  };
+
+  const handleFileRemove = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+  };
+
+  const toggleFileUpload = () => {
+    setShowFileUpload(!showFileUpload);
   };
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || !canSendMessage()) return;
 
+    // Prepare the message content with file attachments
+    let messageContent = inputMessage.trim();
+    let attachedFileNames: string[] = [];
+
+    if (uploadedFiles.length > 0) {
+      attachedFileNames = uploadedFiles.map(f => f.name);
+      const fileContents = uploadedFiles.map(file => 
+        `\n\n--- FILE: ${file.name} ---\n${file.content}\n--- END FILE ---`
+      ).join('');
+      messageContent += fileContents;
+    }
+
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputMessage.trim(),
-      timestamp: new Date()
+      content: inputMessage.trim(), // Display only the text input, not file contents
+      timestamp: new Date(),
+      attachedFiles: attachedFileNames.length > 0 ? attachedFileNames : undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -63,7 +113,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: inputMessage.trim(),
+          message: messageContent, // Send full content including files to API
           context: messages.slice(-6), // Last 6 messages for context
           model: selectedModel,
           userApiKey: userApiKey || undefined,
@@ -83,6 +133,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         };
 
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Clear uploaded files after successful message
+        setUploadedFiles([]);
       } else {
         setError(result.error || 'Failed to get response');
       }
@@ -112,7 +165,21 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   return (
     <div className="chat-interface">
       <div className="chat-header">
-        <h2>💬 Master Shredder Chat</h2>
+        <h2>💬 Federal Contract Capture Assistant</h2>
+        <div className="chat-controls">
+          <button 
+            onClick={toggleFileUpload}
+            className={`btn btn-outline btn-sm ${showFileUpload ? 'active' : ''}`}
+            title="Upload contract documents"
+          >
+            📁 Documents ({uploadedFiles.length})
+          </button>
+          {messages.length > 0 && (
+            <button onClick={clearChat} className="btn btn-outline btn-sm">
+              Clear Chat
+            </button>
+          )}
+        </div>
         <div className="chat-status">
           {canSendMessage() ? (
             <span className="status-ready">
@@ -124,39 +191,48 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </span>
           )}
         </div>
-        {messages.length > 0 && (
-          <button onClick={clearChat} className="btn btn-outline btn-sm">
-            Clear Chat
-          </button>
-        )}
       </div>
+
+      {/* File Upload Section */}
+      {showFileUpload && (
+        <div className="file-upload-section">
+          <FileUpload
+            onFilesUploaded={handleFilesUploaded}
+            uploadedFiles={uploadedFiles}
+            onFileRemove={handleFileRemove}
+            maxFiles={5}
+            maxSizeBytes={5 * 1024 * 1024} // 5MB
+            acceptedTypes={['.pdf', '.doc', '.docx', '.txt', '.md', '.rtf']}
+          />
+        </div>
+      )}
 
       <div className="messages-container">
         {messages.length === 0 ? (
           <div className="welcome-message">
-            <h3>🚀 Welcome to Master Shredder Cloud v3!</h3>
-            <p>Your intelligent document processing assistant is ready to help.</p>
+            <h3>🚀 Welcome to Federal Contract Capture Assistant!</h3>
+            <p>Your intelligent federal contracting assistant is ready to help analyze RFPs, SOWs, and contract documents.</p>
             <div className="welcome-features">
               <div className="feature">
-                <span className="feature-icon">🔐</span>
-                <span>Secure token management</span>
+                <span className="feature-icon">�</span>
+                <span>Document analysis & capture support</span>
               </div>
               <div className="feature">
-                <span className="feature-icon">☁️</span>
-                <span>Cloud-native architecture</span>
+                <span className="feature-icon">🎯</span>
+                <span>RFP analysis & gap assessment</span>
               </div>
               <div className="feature">
-                <span className="feature-icon">🤖</span>
-                <span>Multiple AI models</span>
+                <span className="feature-icon">�</span>
+                <span>Partner research & teaming</span>
               </div>
               <div className="feature">
-                <span className="feature-icon">📄</span>
-                <span>Document analysis</span>
+                <span className="feature-icon">�</span>
+                <span>Compliance matrices & win strategies</span>
               </div>
             </div>
             <p className="welcome-prompt">
               {canSendMessage() 
-                ? "Start a conversation below!" 
+                ? "Upload contract documents and start analyzing!" 
                 : "Please add your OpenAI API key to get started."}
             </p>
           </div>
@@ -179,6 +255,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </div>
                 <div className="message-content">
                   {message.content}
+                  {message.attachedFiles && message.attachedFiles.length > 0 && (
+                    <div className="attached-files">
+                      <div className="attached-files-label">📎 Attached documents:</div>
+                      <div className="attached-files-list">
+                        {message.attachedFiles.map((fileName, index) => (
+                          <span key={index} className="attached-file">
+                            📄 {fileName}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {message.model && (
                   <div className="message-meta">
@@ -224,7 +312,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={canSendMessage() 
-              ? "Ask me anything about your documents..." 
+              ? "Ask me about your contract documents..." 
               : "Please add your OpenAI API key to start chatting"}
             className="message-input"
             rows={2}

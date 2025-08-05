@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TokenManager } from './components/TokenManager';
 import { ChatInterface } from './components/ChatInterface';
 import { SettingsPanel } from './components/SettingsPanel';
+import { CaptureAssistant } from './components/CaptureAssistant';
 import './App.css';
 
 interface AppConfig {
@@ -18,6 +19,7 @@ function App() {
   const [selectedModel, setSelectedModel] = useState<string>('gpt-4-turbo');
   const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [capturePrompt, setCapturePrompt] = useState<string>('');
 
   // Load app configuration on startup
   useEffect(() => {
@@ -44,6 +46,10 @@ function App() {
     setIsTokenValid(valid);
   };
 
+  const handleCapturePrompt = (prompt: string) => {
+    setCapturePrompt(prompt);
+  };
+
   if (loading) {
     return (
       <div className="app-container loading">
@@ -58,6 +64,14 @@ function App() {
   return (
     <div className="app-container">
       <div className="centered-layout">
+        {/* Federal Contract Capture Assistant */}
+        <div className="panel capture-panel">
+          <CaptureAssistant
+            onPromptSelect={handleCapturePrompt}
+            isTokenValid={isTokenValid}
+          />
+        </div>
+
         {/* Token Management Panel */}
         <div className="panel">
           <TokenManager
@@ -75,6 +89,8 @@ function App() {
             isTokenValid={isTokenValid}
             selectedModel={selectedModel}
             systemTokenAvailable={appConfig?.systemTokenAvailable || false}
+            initialPrompt={capturePrompt}
+            onPromptUsed={() => setCapturePrompt('')}
           />
         </div>
 
@@ -91,7 +107,8 @@ function App() {
 
       {/* Footer */}
       <footer className="app-footer">
-        <p>Master Shredder Cloud v{appConfig?.version || '3.0'} | {appConfig?.environment || 'development'}</p>
+        <p>Master Shredder Cloud v{appConfig?.version || '3.0'} - Federal Contract Capture Assistant | {appConfig?.environment || 'development'}</p>
+        <p>🎯 Specialized AI for Government Contracting Professionals</p>
       </footer>
     </div>
   );

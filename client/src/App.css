@@ -78,6 +78,12 @@ body {
   max-width: 350px;
 }
 
+.panel.capture-panel {
+  grid-column: 1 / -1; /* Full width */
+  max-width: none;
+  margin-bottom: 20px;
+}
+
 .panel.chat-panel {
   flex: 2;
   min-width: 400px;

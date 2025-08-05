@@ -60,7 +60,7 @@ export const TokenManager: React.FC<TokenManagerProps> = ({
     setValidationMessage('');
     
     // Auto-validate if it looks like a complete key
-    if (value.startsWith('sk-') && value.length >= 49) {
+    if (value.startsWith('sk-') && value.length >= 20) {
       setTimeout(() => validateToken(value), 500);
     } else {
       onTokenValidated(value, false);

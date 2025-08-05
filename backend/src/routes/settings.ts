@@ -22,7 +22,7 @@ router.post('/validate-token', async (req, res) => {
     if (!validateApiKey(apiKey)) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid API key format. OpenAI keys should start with "sk-" and be at least 49 characters long.'
+        error: 'Invalid API key format. OpenAI keys should start with "sk-" and be at least 20 characters long.'
       });
     }
 

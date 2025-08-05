@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createChatCompletion } from '../services/openaiClient.cloud.js';
+import { CAPTURE_ASSISTANT_SYSTEM_PROMPT } from '../prompts/captureAssistant.js';
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.post('/', async (req, res) => {
       userApiKey,
       temperature,
       maxTokens,
-      systemPrompt = 'You are Master Shredder, a helpful and intelligent document processing assistant. You help users analyze, summarize, and extract insights from their documents with precision and clarity.'
+      systemPrompt = CAPTURE_ASSISTANT_SYSTEM_PROMPT
     } = req.body;
 
     // Validate required fields
