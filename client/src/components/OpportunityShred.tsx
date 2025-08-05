@@ -26,107 +26,153 @@ export const OpportunityShred: React.FC<OpportunityShredProps> = ({
   const [shredSections, setShredSections] = useState<ShredSection[]>([
     {
       id: 'executive-summary',
-      title: 'Executive Summary Extract',
-      description: 'Key opportunity highlights, value, timeline, and strategic importance',
+      title: '1. Executive Summary',
+      description: 'High-level opportunity overview and scope assessment (2-3 sentences)',
       icon: '📊',
       status: 'pending',
       priority: 1,
-      prompt: `Extract and summarize the executive-level information from this opportunity:
-        1. CONTRACT BASICS: Agency, office, contract type, estimated value, period of performance
-        2. OPPORTUNITY OVERVIEW: Core mission, primary objectives, strategic importance to customer
-        3. KEY DATES: RFP release, Q&A deadline, proposal due date, award date, start date
-        4. COMPETITIVE LANDSCAPE: Set-aside type, competition level, incumbent information
-        5. STRATEGIC ASSESSMENT: Why this matters to our business, alignment with company goals`
+      prompt: `EXECUTIVE SUMMARY ANALYSIS:
+
+As a capture manager reviewing this Performance Work Statement (PWS) or solicitation document, provide a concise executive summary that frames this opportunity for bid/no-bid decision-making.
+
+OUTPUT FORMAT:
+Provide an executive summary of the performance work statement and what the work will entail in 2-3 professional sentences suitable for executive briefing.
+
+REQUIREMENTS:
+- Focus on the core mission and business value
+- Identify the requesting agency and primary objectives
+- Highlight strategic importance and scope scale
+- Use professional federal contracting language
+- Exclude emojis, symbols, or informal language
+- Ensure content is exportable to Word/Excel/PDF formats
+
+SOURCE CITATION:
+Include document name, section, and page number for all key facts referenced.`
     },
     {
-      id: 'requirements-matrix',
-      title: 'Requirements Extraction',
-      description: 'Systematic extraction of all functional and technical requirements',
-      icon: '📋',
+      id: 'detailed-shred',
+      title: '2. Detailed Opportunity Shred',
+      description: 'Systematic extraction of agency, scope, technical requirements, and deal breakers',
+      icon: '�',
       status: 'pending',
       priority: 2,
-      prompt: `Perform a comprehensive requirements extraction and create a structured matrix:
-        1. FUNCTIONAL REQUIREMENTS: All "shall" and "must" requirements with section references
-        2. TECHNICAL SPECIFICATIONS: Performance standards, compatibility, integration needs
-        3. DELIVERY REQUIREMENTS: Locations, schedules, milestones, acceptance criteria
-        4. PERSONNEL REQUIREMENTS: Key personnel, qualifications, clearance levels, experience
-        5. COMPLIANCE ITEMS: Certifications, standards, regulations, reporting requirements
-        6. EVALUATION CRITERIA: How each requirement will be scored and weighted`
-    },
-    {
-      id: 'evaluation-intelligence',
-      title: 'Evaluation Criteria Analysis',
-      description: 'Deep dive into how proposals will be scored and ranked',
-      icon: '🎯',
-      status: 'pending',
-      priority: 3,
-      prompt: `Analyze the evaluation methodology and create scoring intelligence:
-        1. EVALUATION FACTORS: Technical, management, past performance, price weights and priorities
-        2. SCORING METHODOLOGY: Point systems, adjectival ratings, trade-off analysis approach
-        3. DISCRIMINATORS: What will separate winning from losing proposals
-        4. HOT BUTTONS: Customer priorities, pain points, must-have capabilities
-        5. GOTCHAS: Hidden requirements, unclear evaluation criteria, potential traps
-        6. WIN STRATEGY IMPLICATIONS: How to position our response for maximum score`
-    },
-    {
-      id: 'compliance-checklist',
-      title: 'Compliance & Submission',
-      description: 'All submission requirements and compliance obligations',
-      icon: '✅',
-      status: 'pending',
-      priority: 4,
-      prompt: `Create a comprehensive compliance and submission checklist:
-        1. PROPOSAL STRUCTURE: Required volumes, page limits, format specifications
-        2. SUBMISSION PROCESS: Where, when, how to submit (electronic/physical)
-        3. MANDATORY DOCUMENTS: Required forms, certifications, attachments
-        4. FORMATTING RULES: Fonts, margins, numbering, labeling requirements
-        5. COMPLIANCE MATRIX: Track every "shall," "must," and "will" requirement
-        6. RISK AREAS: Potential compliance failures and mitigation strategies`
+      prompt: `COMPREHENSIVE OPPORTUNITY SHRED ANALYSIS:
+
+Extract the following structured information from the PWS/solicitation document:
+
+**AGENCY INFORMATION:**
+- Agency (Who is requesting the work)
+- Contracting office/organization
+- Program office or customer organization
+
+**SCOPE ANALYSIS:**
+Extract all verbatim task headers representing technical scope of work, regardless of where they appear in the document. These headers may fall under section titles such as "Specific Tasks," "Performance Requirements," "Functional Requirements," "Task Areas," "Areas of Interest," or similar language.
+
+For each task header:
+- Provide the exact verbatim task title (do not summarize or merge)
+- Add 2-3 bullet points summarizing activities, scope, or functions under that header
+- Consolidate only if sub-tasks are clearly nested under a parent task
+- Exclude general administrative items like Monthly Status Reports, QASP, or boilerplate reporting unless explicitly requested
+- If location is unclear, cite document name, section header, and page number
+
+**TECHNICAL REQUIREMENTS:**
+- Core technical capabilities required
+- Performance standards and metrics
+- Integration requirements
+- Compliance standards (NIST, FedRAMP, etc.)
+- Personnel requirements and clearance levels
+
+**CONTRACT DETAILS:**
+- Period of Performance (MM/DD/YYYY – MM/DD/YYYY format)
+- Place of Performance (specific locations)
+- Contract type and estimated value (if available)
+- Key milestones and delivery dates
+
+**DEAL BREAKERS ASSESSMENT:**
+Look for and flag mention of:
+- Approved Purchasing System requirements
+- Contractor Facility Requirements
+- Requirements for SCIF space
+- NIPR/SIPR/JWICS Access requirements
+- Other specialized facility or certification requirements
+
+**GUARDRAILS:**
+- Do not fabricate content
+- Mark unclear requirements as "To Be Confirmed" or "Not Stated"
+- If multiple documents uploaded, distinguish which file each data point comes from
+- Include source citations: document name, section, page number for every extracted data point
+- Flag any AI inference vs. sourced data
+- Identify areas requiring SME review
+
+OUTPUT FORMATTING:
+All content must be professionally formatted for direct use in federal proposal workflows and exportable to Word, Excel, or PDF formats.`
     },
     {
       id: 'competitive-analysis',
-      title: 'Competitive Landscape',
-      description: 'Market analysis and competitor positioning intelligence',
-      icon: '🏁',
+      title: '3. Competitive Analysis & Decision Utility',
+      description: 'Market analysis, competitor identification, and bid/no-bid assessment',
+      icon: '�',
       status: 'pending',
-      priority: 5,
-      prompt: `Analyze the competitive environment for strategic positioning:
-        1. MARKET ANALYSIS: Contract vehicle, incumbent advantages, market dynamics
-        2. LIKELY COMPETITORS: Prime and subcontractor prospects based on capability fit
-        3. COMPETITIVE ADVANTAGES: Our unique strengths vs. likely competition
-        4. TEAMING IMPLICATIONS: Partnership opportunities and competitive threats
-        5. PRICING CONSIDERATIONS: Market rates, competitive pressure points
-        6. DIFFERENTIATION STRATEGY: How to stand out in the competitive field`
-    },
-    {
-      id: 'risk-assessment',
-      title: 'Risk & Opportunity Analysis',
-      description: 'Comprehensive risk identification and mitigation strategies',
-      icon: '⚠️',
-      status: 'pending',
-      priority: 6,
-      prompt: `Conduct thorough risk assessment and opportunity analysis:
-        1. TECHNICAL RISKS: Complex requirements, unproven technology, integration challenges
-        2. BUSINESS RISKS: Pricing pressure, capability gaps, resource constraints
-        3. COMPETITIVE RISKS: Strong incumbents, well-positioned competitors, teaming conflicts
-        4. COMPLIANCE RISKS: Ambiguous requirements, tight deadlines, complex submission process
-        5. MITIGATION STRATEGIES: How to address each identified risk category
-        6. OPPORTUNITY UPSIDE: Growth potential, follow-on opportunities, strategic value`
-    },
-    {
-      id: 'capture-roadmap',
-      title: 'Capture Strategy Roadmap',
-      description: 'Actionable capture plan with activities and timeline',
-      icon: '🗺️',
-      status: 'pending',
-      priority: 7,
-      prompt: `Develop a comprehensive capture strategy and execution roadmap:
-        1. BID/NO-BID ANALYSIS: PWin assessment, resource requirements, strategic fit
-        2. CAPTURE ACTIVITIES: Customer engagement, teaming, competitive intelligence tasks
-        3. PROPOSAL STRATEGY: Win themes, ghost strategies, key personnel assignments
-        4. TIMELINE & MILESTONES: Critical path activities from RFP to proposal submission
-        5. RESOURCE REQUIREMENTS: Personnel, budget, external support needed
-        6. SUCCESS METRICS: How to measure capture progress and proposal quality`
+      priority: 3,
+      prompt: `COMPETITIVE ANALYSIS AND DECISION UTILITY:
+
+Based on the opportunity requirements identified in the PWS/solicitation, conduct the following analysis:
+
+**COMPETITIVE LANDSCAPE ANALYSIS:**
+- Identify likely prime contractors based on:
+  - Technical capability alignment
+  - Contract vehicle access
+  - Past performance in similar work
+  - Agency relationship history
+- Assess market dynamics and competition level
+- Identify incumbent advantages or challenges
+
+**CAPABILITY ASSESSMENT:**
+- Map our company capabilities to opportunity requirements
+- Identify strengths and competitive advantages
+- Flag capability gaps or areas requiring partnerships
+- Assess past performance alignment
+
+**TEAMING ANALYSIS:**
+- Identify potential teaming partners to fill capability gaps
+- Assess which identified competitors might be viable teaming partners
+- Recommend teaming strategies (prime vs. sub positions)
+- Flag competitive threats from strong team formations
+
+**BID/NO-BID DECISION FACTORS:**
+- PWin assessment based on:
+  - Technical capability fit
+  - Past performance strength
+  - Competitive positioning
+  - Resource requirements vs. company capacity
+- Strategic value assessment
+- Risk factors and mitigation requirements
+- Resource investment required vs. potential return
+
+**DECISION UTILITY SUMMARY:**
+Provide clear recommendation on bid/no-bid decision with supporting rationale including:
+- PWin percentage estimate with confidence level
+- Key success factors required to win
+- Major risks and mitigation strategies
+- Strategic importance to company growth
+
+**TEAMING FLAG:**
+Specifically identify if any competitors are viable teaming partners and recommended approach.
+
+**GUARDRAILS:**
+- Base analysis on factual requirements from the solicitation
+- Clearly distinguish between sourced data and AI inference
+- Mark speculative assessments with appropriate disclaimers
+- Flag areas requiring SME review or additional market research
+- Avoid fabricated competitor capabilities or relationships
+
+**SOURCE REQUIREMENTS:**
+- Include document references for all requirement-based assessments
+- Cite specific sections supporting capability gap analysis
+- Reference solicitation requirements in competitive positioning
+
+OUTPUT FORMATTING:
+Professional federal contracting language suitable for capture decision briefings and exportable to standard business formats.`
     }
   ]);
 
@@ -134,7 +180,20 @@ export const OpportunityShred: React.FC<OpportunityShredProps> = ({
   const [currentSection, setCurrentSection] = useState<string | null>(null);
 
   const canStartShred = () => {
-    return isTokenValid && uploadedFiles.length > 0;
+    if (!isTokenValid) return false;
+    if (uploadedFiles.length === 0) return false;
+    
+    // Check if we have PWS, RFP, or similar documents
+    const hasRelevantDocs = uploadedFiles.some(file => 
+      file.name.toLowerCase().includes('pws') ||
+      file.name.toLowerCase().includes('rfp') ||
+      file.name.toLowerCase().includes('rfi') ||
+      file.name.toLowerCase().includes('solicitation') ||
+      file.type.includes('pdf') ||
+      file.type.includes('word')
+    );
+    
+    return hasRelevantDocs;
   };
 
   const startOpportunityShred = async () => {
@@ -236,8 +295,20 @@ export const OpportunityShred: React.FC<OpportunityShredProps> = ({
   return (
     <div className="opportunity-shred">
       <div className="shred-header">
-        <h3>🔍 Comprehensive Opportunity Shred</h3>
-        <p>Systematic analysis of federal opportunities for maximum capture intelligence</p>
+        <h3>🔍 Federal Capture Methodology - Professional Opportunity Shred</h3>
+        <p>Comprehensive 3-component analysis framework for PWS/RFP documents designed for capture manager decision-making</p>
+        
+        <div className="methodology-info">
+          <div className="method-component">
+            <strong>1. Executive Summary:</strong> High-level opportunity framing (2-3 sentences)
+          </div>
+          <div className="method-component">
+            <strong>2. Detailed Shred:</strong> Agency, scope, technical requirements, and deal breakers
+          </div>
+          <div className="method-component">
+            <strong>3. Competitive Analysis:</strong> Market analysis and bid/no-bid decision utility
+          </div>
+        </div>
         
         <div className="shred-stats">
           <div className="stat-item">
@@ -257,12 +328,30 @@ export const OpportunityShred: React.FC<OpportunityShredProps> = ({
         </div>
 
         <div className="shred-controls">
+          {!isTokenValid && (
+            <div className="requirement-message error">
+              ⚠️ Valid OpenAI API token required to execute capture methodology
+            </div>
+          )}
+          
+          {isTokenValid && uploadedFiles.length === 0 && (
+            <div className="requirement-message warning">
+              📄 Please upload PWS, RFP, or solicitation documents to begin analysis
+            </div>
+          )}
+          
+          {isTokenValid && uploadedFiles.length > 0 && !canStartShred() && (
+            <div className="requirement-message warning">
+              📋 Upload relevant federal documents (PWS, RFP, RFI, or solicitation files)
+            </div>
+          )}
+          
           <button
             onClick={startOpportunityShred}
             disabled={!canStartShred() || isShredding}
             className="btn btn-primary shred-start"
           >
-            {isShredding ? '🔄 Shredding...' : '🚀 Start Comprehensive Shred'}
+            {isShredding ? '🔄 Processing Methodology...' : '🚀 Execute Federal Capture Shred'}
           </button>
           
           {stats.completed > 0 && (
