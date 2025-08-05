@@ -1,0 +1,55 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Uploaded files
+uploads/*
+!uploads/.gitkeep
+temp/*
+!temp/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Windows
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Logs
+*.log
+
+# Local development
+.pytest_cache/
+.coverage
+htmlcov/node_modules/
+*/node_modules/
+**/node_modules/
+package-lock.json

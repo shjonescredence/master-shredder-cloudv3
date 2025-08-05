@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Shredder Setup - API Key Required</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .setup-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo img {
+            height: 80px;
+            border-radius: 15px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .step h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .api-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .api-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .save-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="logo">
+            <img src="logo.png" alt="Credo Logo">
+            <h1>Welcome to Master Shredder</h1>
+            <p style="text-align: center; color: #666;">AI-Powered Federal Capture Management</p>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ API Key Required:</strong> Master Shredder needs your OpenAI API key to function. This key stays on your computer and is never shared.
+        </div>
+
+        <div class="step">
+            <h3>🔑 Step 1: Get Your OpenAI API Key</h3>
+            <ol>
+                <li>Go to: <a href="https://platform.openai.com/api-keys" target="_blank" class="link">https://platform.openai.com/api-keys</a></li>
+                <li>Sign in to your OpenAI account (or create one)</li>
+                <li>Click <strong>"Create new secret key"</strong></li>
+                <li>Copy the key (starts with "sk-")</li>
+                <li>⚠️ <strong>Important:</strong> Copy it now - you won't see it again!</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>📝 Step 2: Enter Your API Key</h3>
+            <input 
+                type="password" 
+                id="apiKey" 
+                class="api-input" 
+                placeholder="Paste your OpenAI API key here (sk-...)"
+                autocomplete="off"
+            >
+            <button onclick="saveApiKey()" class="save-btn">
+                💾 Save API Key & Start Master Shredder
+            </button>
+        </div>
+
+        <div class="step">
+            <h3>💰 Pricing Information</h3>
+            <p><strong>GPT-4o-mini costs:</strong> ~$0.15 per 1M input tokens, ~$0.60 per 1M output tokens</p>
+            <p><strong>Typical usage:</strong> $2-10 per month for regular capture management work</p>
+            <p><strong>Your usage:</strong> Monitor at <a href="https://platform.openai.com/usage" target="_blank" class="link">platform.openai.com/usage</a></p>
+        </div>
+
+        <div class="step">
+            <h3>🔐 Security & Privacy</h3>
+            <ul>
+                <li>✅ Your API key is stored locally on your computer only</li>
+                <li>✅ Documents you upload are processed locally</li>
+                <li>✅ Only document text is sent to OpenAI for analysis</li>
+                <li>✅ No data is stored on external servers</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function saveApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                alert('Please enter your OpenAI API key');
+                return;
+            }
+            
+            if (!apiKey.startsWith('sk-')) {
+                alert('OpenAI API keys start with "sk-". Please check your key.');
+                return;
+            }
+            
+            // Save to localStorage for the app to use
+            localStorage.setItem('openai_api_key', apiKey);
+            
+            // Show success message
+            alert('✅ API key saved successfully! Redirecting to Master Shredder...');
+            
+            // Redirect to main app
+            window.location.href = '/app';
+        }
+        
+        // Check if API key already exists
+        window.onload = function() {
+            const existingKey = localStorage.getItem('openai_api_key');
+            if (existingKey) {
+                if (confirm('You already have an API key saved. Go directly to Master Shredder?')) {
+                    window.location.href = '/app';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

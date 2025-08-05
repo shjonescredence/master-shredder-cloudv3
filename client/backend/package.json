@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "capture-client": "file:.."
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3"
+  }
+}

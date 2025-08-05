@@ -1,0 +1,151 @@
+.settings-panel {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.settings-panel h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  border-bottom: 1px solid #ecf0f1;
+  padding-bottom: 10px;
+}
+
+.setting-section {
+  margin-bottom: 24px;
+}
+
+.setting-section h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+  color: #34495e;
+}
+
+.select-wrapper {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+.model-select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  appearance: none;
+  cursor: pointer;
+}
+
+.model-select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.api-key-input-container {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.api-key-input {
+  flex-grow: 1;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-family: monospace;
+}
+
+.api-key-input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.api-key-input.invalid {
+  border-color: #e74c3c;
+  background-color: #ffeaea;
+}
+
+.toggle-visibility-button {
+  padding: 0 12px;
+  background-color: #ecf0f1;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.toggle-visibility-button:hover {
+  background-color: #dfe6e9;
+}
+
+.setting-description {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  line-height: 1.4;
+}
+
+.validation-error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.loading, .error {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.loading {
+  background-color: #f5f7fa;
+  border-left: 4px solid #3498db;
+  color: #2980b9;
+}
+
+.error {
+  background-color: #feeaea;
+  border-left: 4px solid #e74c3c;
+  color: #c0392b;
+}
+
+.help-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.help-link {
+  display: block;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  color: #2980b9;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.help-link:hover {
+  background-color: #edf2f7;
+  color: #3498db;
+}
