@@ -13,6 +13,15 @@ interface AppConfig {
   version: string;
 }
 
+interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  content: string;
+  uploadDate: Date;
+}
+
 function App() {
   const [userApiKey, setUserApiKey] = useState<string>('');
   const [isTokenValid, setIsTokenValid] = useState<boolean>(false);
@@ -20,6 +29,7 @@ function App() {
   const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [capturePrompt, setCapturePrompt] = useState<string>('');
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   // Load app configuration on startup
   useEffect(() => {
@@ -69,6 +79,7 @@ function App() {
           <CaptureAssistant
             onPromptSelect={handleCapturePrompt}
             isTokenValid={isTokenValid}
+            uploadedFiles={uploadedFiles}
           />
         </div>
 

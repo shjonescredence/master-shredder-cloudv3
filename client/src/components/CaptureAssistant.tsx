@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import './CaptureAssistant.css';
+import { OpportunityShred } from './OpportunityShred';
 
 interface CaptureAssistantProps {
   onPromptSelect: (prompt: string, context?: string) => void;
   isTokenValid: boolean;
+  uploadedFiles?: any[];
 }
 
 interface QuickAction {
@@ -14,6 +16,8 @@ interface QuickAction {
   prompt: string;
   requiresDocument?: boolean;
 }
+
+type TabType = 'quick-actions' | 'opportunity-shred';
 
 const CAPTURE_QUICK_ACTIONS: QuickAction[] = [
   {
@@ -82,10 +86,12 @@ const CAPTURE_QUICK_ACTIONS: QuickAction[] = [
   }
 ];
 
-export const CaptureAssistant: React.FC<CaptureAssistantProps> = ({
+export const CaptureAssistant: React.FC<CaptureAssistantProps> = ({ 
   onPromptSelect,
-  isTokenValid
+  isTokenValid,
+  uploadedFiles = []
 }) => {
+  const [activeTab, setActiveTab] = useState<TabType>('quick-actions');
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [documentContext, setDocumentContext] = useState<string>('');
   const [showDocumentInput, setShowDocumentInput] = useState<boolean>(false);
@@ -93,6 +99,11 @@ export const CaptureAssistant: React.FC<CaptureAssistantProps> = ({
   const handleActionClick = (action: QuickAction) => {
     if (!isTokenValid) {
       alert('Please validate your API token first');
+      return;
+    }
+
+    if (action.requiresDocument && uploadedFiles.length === 0) {
+      alert('This action requires uploaded documents. Please upload contract documents using the Documents button first.');
       return;
     }
 
@@ -122,16 +133,37 @@ export const CaptureAssistant: React.FC<CaptureAssistantProps> = ({
     setSelectedAction(null);
   };
 
-  return (
+  const handleShredComplete = (results: any[]) => {
+    console.log('Opportunity shred completed:', results);
+    // Optionally switch to chat to view results
+    // onPromptSelect('Show me the comprehensive opportunity analysis results.');
+  };  return (
     <div className="capture-assistant">
       <div className="capture-header">
         <div className="capture-title">
           <h2>🎯 Federal Contract Capture Assistant</h2>
           <p>Specialized AI support for government contracting professionals</p>
         </div>
+        
+        {/* Tab Navigation */}
+        <div className="capture-tabs">
+          <button
+            className={`tab-button ${activeTab === 'quick-actions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('quick-actions')}
+          >
+            ⚡ Quick Actions
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'opportunity-shred' ? 'active' : ''}`}
+            onClick={() => setActiveTab('opportunity-shred')}
+          >
+            🔍 Opportunity Shred
+          </button>
+        </div>
       </div>
 
-      {!showDocumentInput ? (
+      {/* Quick Actions Tab */}
+      {activeTab === 'quick-actions' && !showDocumentInput && (
         <div className="quick-actions-grid">
           {CAPTURE_QUICK_ACTIONS.map((action) => (
             <div
@@ -144,13 +176,25 @@ export const CaptureAssistant: React.FC<CaptureAssistantProps> = ({
                 <h3>{action.title}</h3>
                 <p>{action.description}</p>
                 {action.requiresDocument && (
-                  <span className="document-required">📄 Requires document/context</span>
+                  <span className="document-required">📄 Requires uploaded documents</span>
                 )}
               </div>
             </div>
           ))}
         </div>
-      ) : (
+      )}
+
+      {/* Opportunity Shred Tab */}
+      {activeTab === 'opportunity-shred' && (
+        <OpportunityShred
+          onShredComplete={handleShredComplete}
+          uploadedFiles={uploadedFiles}
+          isTokenValid={isTokenValid}
+        />
+      )}
+
+      {/* Document Input Modal */}
+      {activeTab === 'quick-actions' && showDocumentInput && (
         <div className="document-input-modal">
           <div className="modal-header">
             <h3>
@@ -186,21 +230,24 @@ export const CaptureAssistant: React.FC<CaptureAssistantProps> = ({
         </div>
       )}
 
-      <div className="capture-footer">
-        <div className="capabilities-summary">
-          <h4>🔧 Key Capabilities</h4>
-          <div className="capability-tags">
-            <span className="tag">RFP Analysis</span>
-            <span className="tag">Gap Assessment</span>
-            <span className="tag">Competitive Intel</span>
-            <span className="tag">Partner Research</span>
-            <span className="tag">Win Strategy</span>
-            <span className="tag">Compliance Tracking</span>
-            <span className="tag">RFI Responses</span>
-            <span className="tag">FAR/DFARS Expert</span>
+      {/* Footer - only show on quick actions tab */}
+      {activeTab === 'quick-actions' && !showDocumentInput && (
+        <div className="capture-footer">
+          <div className="capabilities-summary">
+            <h4>🔧 Key Capabilities</h4>
+            <div className="capability-tags">
+              <span className="tag">RFP Analysis</span>
+              <span className="tag">Gap Assessment</span>
+              <span className="tag">Competitive Intel</span>
+              <span className="tag">Partner Research</span>
+              <span className="tag">Win Strategy</span>
+              <span className="tag">Compliance Tracking</span>
+              <span className="tag">RFI Responses</span>
+              <span className="tag">FAR/DFARS Expert</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
