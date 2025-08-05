@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { TokenManager } from './components/TokenManager';
 import { ChatInterface } from './components/ChatInterface';
 import { SettingsPanel } from './components/SettingsPanel';
 import { CaptureAssistant } from './components/CaptureAssistant';
+import { TokenSetupModal } from './components/TokenSetupModal';
+import { getStoredToken, getTokenStatus } from './services/tokenStorage';
 import './App.css';
 
 interface AppConfig {
@@ -30,30 +31,53 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [capturePrompt, setCapturePrompt] = useState<string>('');
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [showTokenSetup, setShowTokenSetup] = useState<boolean>(false);
 
-  // Load app configuration on startup
+  // Load app configuration and check token status on startup
   useEffect(() => {
-    fetchAppConfig();
+    initializeApp();
   }, []);
 
-  const fetchAppConfig = async () => {
+  const initializeApp = async () => {
     try {
+      // Load app configuration
       const response = await fetch('/api/settings/config');
       if (response.ok) {
         const config = await response.json();
         setAppConfig(config.config);
         setSelectedModel(config.config.defaultModel);
       }
+
+      // Check token status
+      const tokenStatus = getTokenStatus();
+      if (tokenStatus.hasToken && tokenStatus.isSetupComplete) {
+        const storedToken = getStoredToken();
+        if (storedToken) {
+          setUserApiKey(storedToken);
+          setIsTokenValid(true);
+        }
+      } else {
+        // Show setup modal if no token or setup not complete
+        setShowTokenSetup(true);
+      }
     } catch (error) {
-      console.error('Failed to load app config:', error);
+      console.error('Failed to initialize app:', error);
+      // Show setup modal on error as fallback
+      setShowTokenSetup(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTokenValidated = (token: string, valid: boolean) => {
+  const handleTokenSetupComplete = (token: string) => {
     setUserApiKey(token);
-    setIsTokenValid(valid);
+    setIsTokenValid(true);
+    setShowTokenSetup(false);
+  };
+
+  const handleTokenSetupSkip = () => {
+    setShowTokenSetup(false);
+    // Continue with system token if available
   };
 
   const handleCapturePrompt = (prompt: string) => {
@@ -73,6 +97,15 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Token Setup Modal */}
+      {showTokenSetup && (
+        <TokenSetupModal
+          onSetupComplete={handleTokenSetupComplete}
+          onSkip={handleTokenSetupSkip}
+          allowSkip={appConfig?.systemTokenAvailable}
+        />
+      )}
+
       <div className="centered-layout">
         {/* Federal Contract Capture Assistant */}
         <div className="panel capture-panel">
@@ -83,18 +116,8 @@ function App() {
           />
         </div>
 
-        {/* Token Management Panel */}
-        <div className="panel">
-          <TokenManager
-            onTokenValidated={handleTokenValidated}
-            currentToken={userApiKey}
-            isValid={isTokenValid}
-            systemTokenAvailable={appConfig?.systemTokenAvailable || false}
-          />
-        </div>
-
-        {/* Main Chat Interface */}
-        <div className="panel chat-panel">
+        {/* Main Chat Interface - Now takes full width */}
+        <div className="panel chat-panel expanded">
           <ChatInterface
             userApiKey={userApiKey}
             isTokenValid={isTokenValid}
@@ -105,13 +128,14 @@ function App() {
           />
         </div>
 
-        {/* Settings Panel */}
-        <div className="panel">
+        {/* Simplified Settings Panel */}
+        <div className="panel settings-panel">
           <SettingsPanel
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
             userApiKey={userApiKey}
             appConfig={appConfig}
+            onTokenReset={() => setShowTokenSetup(true)}
           />
         </div>
       </div>

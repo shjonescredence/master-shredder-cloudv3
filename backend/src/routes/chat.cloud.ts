@@ -41,7 +41,9 @@ router.post('/', async (req, res) => {
       model,
       userApiKey,
       temperature,
-      maxTokens
+      maxTokens,
+      systemPrompt,
+      enableDynamicSelection: true
     });
 
     // Return successful response
@@ -50,6 +52,9 @@ router.post('/', async (req, res) => {
       reply: result.response.choices[0].message.content,
       tokenSource: result.tokenSource,
       model: result.response.model,
+      modelUsed: result.modelUsed,
+      modelSelection: result.modelSelection,
+      dynamicSelectionEnabled: result.dynamicSelectionEnabled,
       usage: result.response.usage
     });
 

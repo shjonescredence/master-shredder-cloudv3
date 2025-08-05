@@ -203,6 +203,33 @@
   transform: translateX(4px);
 }
 
+/* Token Controls */
+.token-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.token-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.status-indicator:contains("❌") {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .info-item {
@@ -217,5 +244,9 @@
   
   .help-links a {
     padding: 6px 8px;
+  }
+  
+  .token-controls {
+    gap: 8px;
   }
 }

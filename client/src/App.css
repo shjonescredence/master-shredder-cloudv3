@@ -89,6 +89,16 @@ body {
   min-width: 400px;
 }
 
+.panel.chat-panel.expanded {
+  flex: 3;
+  min-width: 500px;
+}
+
+.panel.settings-panel {
+  max-width: 280px;
+  min-width: 260px;
+}
+
 .panel:last-child {
   max-width: 350px;
 }

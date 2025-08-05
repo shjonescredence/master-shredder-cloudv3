@@ -14,13 +14,15 @@ interface SettingsPanelProps {
   onModelChange: (model: string) => void;
   userApiKey: string;
   appConfig: AppConfig | null;
+  onTokenReset?: () => void;
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   selectedModel,
   onModelChange,
   userApiKey,
-  appConfig
+  appConfig,
+  onTokenReset
 }) => {
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loadingModels, setLoadingModels] = useState<boolean>(false);
@@ -205,6 +207,25 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           </div>
         </div>
       </div>
+
+      {onTokenReset && (
+        <div className="settings-section">
+          <h3>🔑 API Key</h3>
+          <div className="token-controls">
+            <div className="token-status">
+              <span className="status-indicator">
+                {userApiKey ? '✅ API Key Configured' : '❌ No API Key'}
+              </span>
+            </div>
+            <button 
+              onClick={onTokenReset}
+              className="btn btn-outline btn-sm"
+            >
+              🔄 Change API Key
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="settings-section">
         <h3>ℹ️ Help</h3>

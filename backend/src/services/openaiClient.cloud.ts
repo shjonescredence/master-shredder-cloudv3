@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions/completions.js';
+import { analyzeAndSelectModel, ModelSelectionResult } from './modelSelector.js';
 
 // AWS Secrets Manager client
 const secretsClient = new SecretsManagerClient({ 
@@ -97,7 +98,7 @@ export async function testApiKey(apiKey: string): Promise<boolean> {
  * Create chat completion with user-provided or system OpenAI key
  * @param messages - Chat messages
  * @param options - Configuration options
- * @returns Chat completion response
+ * @returns Chat completion response with model selection info
  */
 export async function createChatCompletion(
   messages: Array<{ role: string; content: string }>,
@@ -106,22 +107,40 @@ export async function createChatCompletion(
     userApiKey?: string;
     temperature?: number;
     maxTokens?: number;
+    systemPrompt?: string;
+    enableDynamicSelection?: boolean;
   } = {}
 ) {
   const {
-    model = process.env.DEFAULT_MODEL || 'gpt-4-turbo',
+    model: userSpecifiedModel,
     userApiKey,
     temperature = 0.7,
-    maxTokens = 4000
+    maxTokens = 4000,
+    systemPrompt = '',
+    enableDynamicSelection = true
   } = options;
 
   try {
     // Get appropriate OpenAI client
     const openai = await getOpenAIClient(userApiKey);
     
+    let selectedModel = userSpecifiedModel || process.env.DEFAULT_MODEL || 'gpt-4-turbo';
+    let modelSelection: ModelSelectionResult | null = null;
+
+    // Use dynamic model selection if enabled and no specific model requested
+    if (enableDynamicSelection && !userSpecifiedModel) {
+      const userMessage = messages[messages.length - 1]?.content || '';
+      const context = messages.slice(1, -1); // Exclude system prompt and current message
+      
+      modelSelection = analyzeAndSelectModel(userMessage, context, systemPrompt);
+      selectedModel = modelSelection.model;
+      
+      console.log(`Dynamic model selection: ${selectedModel} - ${modelSelection.reasoning}`);
+    }
+    
     // Create chat completion
     const response = await openai.chat.completions.create({
-      model,
+      model: selectedModel,
       messages: messages as ChatCompletionMessageParam[],
       temperature,
       max_tokens: maxTokens,
@@ -130,7 +149,10 @@ export async function createChatCompletion(
     return {
       success: true,
       response,
-      tokenSource: userApiKey ? 'user' : 'system'
+      tokenSource: userApiKey ? 'user' : 'system',
+      modelUsed: selectedModel,
+      modelSelection: modelSelection,
+      dynamicSelectionEnabled: enableDynamicSelection
     };
   } catch (error: any) {
     console.error('Chat completion failed:', error);
@@ -141,7 +163,8 @@ export async function createChatCompletion(
     } else if (error.code === 'insufficient_quota') {
       throw new Error('Insufficient quota for the provided API key. Please check your OpenAI account.');
     } else if (error.code === 'model_not_found') {
-      throw new Error(`Model '${model}' not found. Please check the model name.`);
+      const usedModel = userSpecifiedModel || process.env.DEFAULT_MODEL || 'gpt-4-turbo';
+      throw new Error(`Model '${usedModel}' not found. Please check the model name.`);
     }
     
     throw new Error(`OpenAI API error: ${error.message}`);

@@ -183,11 +183,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="chat-status">
           {canSendMessage() ? (
             <span className="status-ready">
-              ✅ Ready • {userApiKey ? 'User Token' : 'System Token'}
+              ✅ Ready
             </span>
           ) : (
             <span className="status-waiting">
-              ⏳ Waiting for valid token
+              ⚠️ Setup Required
             </span>
           )}
         </div>
@@ -233,7 +233,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <p className="welcome-prompt">
               {canSendMessage() 
                 ? "Upload contract documents and start analyzing!" 
-                : "Please add your OpenAI API key to get started."}
+                : "Complete setup to get started with AI analysis."}
             </p>
           </div>
         ) : (
@@ -313,7 +313,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onKeyPress={handleKeyPress}
             placeholder={canSendMessage() 
               ? "Ask me about your contract documents..." 
-              : "Please add your OpenAI API key to start chatting"}
+              : "Complete setup to start chatting"}
             className="message-input"
             rows={2}
             disabled={!canSendMessage() || isLoading}
