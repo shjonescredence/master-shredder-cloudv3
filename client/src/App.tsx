@@ -123,14 +123,19 @@ function App() {
 
       // Check token status
       const tokenStatus = getTokenStatus();
+      console.log('Token status:', tokenStatus); // Debug log
+      
       if (tokenStatus.hasToken && tokenStatus.isSetupComplete) {
         const storedToken = getStoredToken();
+        console.log('Stored token exists:', !!storedToken); // Debug log
+        
         if (storedToken) {
           setUserApiKey(storedToken);
           setIsTokenValid(true);
         }
       } else {
         // Show setup modal if no token or setup not complete
+        console.log('Showing token setup modal'); // Debug log
         setShowTokenSetup(true);
       }
     } catch (error) {
@@ -190,6 +195,13 @@ function App() {
         <div className="connection-status">
           <span className="status-indicator connected"></span>
           <span>Connected</span>
+          <button 
+            className="setup-token-btn"
+            onClick={() => setShowTokenSetup(true)}
+            title="Setup API Token"
+          >
+            🔑 API Token
+          </button>
         </div>
       </header>
 

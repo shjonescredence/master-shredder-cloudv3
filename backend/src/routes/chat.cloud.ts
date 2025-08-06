@@ -36,6 +36,35 @@ router.post('/', async (req, res) => {
       console.log('No user API key provided, will attempt to use system key');
     }
 
+    // Smart model selection based on message characteristics
+    let selectedModel = model;
+    if (!selectedModel && userApiKey) {
+      try {
+        const { getAvailableModels } = await import('../services/openaiClient.cloud.js');
+        const { SmartModelSelector } = await import('../services/smartModelSelector.js');
+        
+        const availableModels = await getAvailableModels(userApiKey);
+        const selector = SmartModelSelector.getInstance();
+        
+        // Determine use case based on message content and context
+        let useCase = 'chat_primary';
+        
+        if (message.length > 1000 || context.length > 5) {
+          useCase = 'document_analysis'; // Long messages or complex context
+        } else if (message.includes('quick') || message.includes('fast')) {
+          useCase = 'fast_responses'; // User wants quick response
+        } else if (context.length > 0) {
+          useCase = 'reasoning_heavy'; // Continued conversation
+        }
+        
+        selectedModel = selector.getModelForUseCase(useCase as any, availableModels);
+        console.log(`Smart model selection: ${useCase} -> ${selectedModel}`);
+      } catch (error) {
+        console.warn('Smart model selection failed, using fallback:', error);
+        selectedModel = 'gpt-4o'; // Fallback
+      }
+    }
+
     // Build messages array
     const messages = [
       { role: 'system', content: systemPrompt },
@@ -43,14 +72,14 @@ router.post('/', async (req, res) => {
       { role: 'user', content: message }
     ];
 
-    // Create chat completion with user or system token
+    // Create chat completion with smart model selection
     const result = await createChatCompletion(messages, {
-      model: model || 'gpt-4o', // Force GPT-4o as default
+      model: selectedModel || 'gpt-4o',
       userApiKey,
       temperature,
       maxTokens,
       systemPrompt,
-      enableDynamicSelection: false // Disable dynamic selection for reliability
+      enableDynamicSelection: false // Smart selection replaces dynamic selection
     });
 
     // Return successful response
@@ -80,8 +109,14 @@ router.post('/', async (req, res) => {
     if (error.message.includes('insufficient quota')) {
       return res.status(402).json({
         success: false,
-        error: 'Insufficient quota for the provided API key',
-        code: 'INSUFFICIENT_QUOTA'
+        error: 'Insufficient quota for the provided API key. Please check your OpenAI billing.',
+        code: 'INSUFFICIENT_QUOTA',
+        suggestions: [
+          'Check your OpenAI billing dashboard at https://platform.openai.com/usage',
+          'Add payment method or upgrade plan',
+          'Wait for monthly quota reset',
+          'Try using GPT-3.5-Turbo (cheaper alternative)'
+        ]
       });
     }
     
