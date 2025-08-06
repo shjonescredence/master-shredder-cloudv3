@@ -83,9 +83,9 @@ export const TokenSetupModal: React.FC<TokenSetupModalProps> = ({
         {step === 'welcome' && (
           <div className="setup-step welcome-step">
             <div className="setup-header">
-              <div className="setup-icon">🚀</div>
+              <div className="setup-icon">🎯</div>
               <h2>Welcome to Master Shredder!</h2>
-              <p>Your Federal Contract Capture Assistant</p>
+              <p>Federal Contract Capture Assistant</p>
             </div>
             
             <div className="setup-content">
@@ -214,7 +214,7 @@ export const TokenSetupModal: React.FC<TokenSetupModalProps> = ({
             
             <div className="setup-content">
               <div className="success-message">
-                <p>🎉 You're all set to use Master Shredder!</p>
+                <p>🎉 Master Shredder is ready for federal capture analysis!</p>
                 <p>Starting your Federal Contract Capture Assistant...</p>
               </div>
             </div>

@@ -42,6 +42,7 @@ class MasterShredderAssistant:
         key = api_key or os.getenv("OPENAI_API_KEY")
         if not key:
             raise HTTPException(status_code=400, detail="No OpenAI API key provided")
+        # Simple initialization without any additional parameters
         return OpenAI(api_key=key)
 
     def analyze_document(self, content: str, api_key: str, doc_type: str = "RFP"):
@@ -99,7 +100,7 @@ class MasterShredderAssistant:
         try:
             client = self.get_openai_client(api_key)
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt}
@@ -123,7 +124,7 @@ class MasterShredderAssistant:
         try:
             client = self.get_openai_client(api_key)
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt}
@@ -229,7 +230,7 @@ async def health_check():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.environ.get("PORT", 8080))
     print(f"🚀 Starting Master Shredder...")
     print(f"📱 Setup at: http://localhost:{port}")
-    uvicorn.run(app, host="127.0.0.1", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)
