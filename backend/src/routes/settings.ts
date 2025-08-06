@@ -107,7 +107,7 @@ router.get('/config', (req, res) => {
   res.json({
     success: true,
     config: {
-      defaultModel: process.env.DEFAULT_MODEL || 'gpt-4-turbo',
+      defaultModel: process.env.DEFAULT_MODEL || 'gpt-4o',
       allowUserTokens: true,
       systemTokenAvailable: !!process.env.OPENAI_SECRET_NAME,
       environment: process.env.NODE_ENV || 'development',

@@ -3,8 +3,10 @@ import { ChatInterface } from './components/ChatInterface';
 import { SettingsPanel } from './components/SettingsPanel';
 import { CaptureAssistant } from './components/CaptureAssistant';
 import { TokenSetupModal } from './components/TokenSetupModal';
+import { DocumentAnalyzer } from './components/DocumentAnalyzer';
 import { getStoredToken, getTokenStatus } from './services/tokenStorage';
 import './App.css';
+import './components/DocumentAnalyzer.css';
 
 interface AppConfig {
   defaultModel: string;
@@ -203,46 +205,7 @@ function App() {
       <div className="main-layout">
         {/* Upload Panel */}
         <div className="panel upload-panel">
-          <div className="upload-content">
-            <div className="upload-area">
-              <div className="upload-icon">📄</div>
-              <h3>Drag & Drop or Click to Upload</h3>
-              <p>Supports PDF and Word documents</p>
-              <button className="upload-btn primary">
-                📁 Browse Files
-              </button>
-              <div className="upload-status">
-                <span className="file-count">No documents uploaded yet</span>
-              </div>
-            </div>
-            
-            <div className="quick-actions-section">
-              <h4>🚀 Quick Actions</h4>
-              <div className="quick-actions-list">
-                <button 
-                  className="quick-action-btn"
-                  onClick={() => handleQuickAction('compliance')}
-                  aria-label="Generate Compliance Matrix"
-                >
-                  📋 Generate Compliance Matrix
-                </button>
-                <button 
-                  className="quick-action-btn"
-                  onClick={() => handleQuickAction('timeline')}
-                  aria-label="Create Timeline"
-                >
-                  📅 Create Timeline
-                </button>
-                <button 
-                  className="quick-action-btn"
-                  onClick={() => handleQuickAction('competitor')}
-                  aria-label="Competitor Analysis"
-                >
-                  🔍 Competitor Analysis
-                </button>
-              </div>
-            </div>
-          </div>
+          <DocumentAnalyzer />
         </div>
 
         {/* Assistant Panel */}

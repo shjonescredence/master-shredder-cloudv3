@@ -45,12 +45,12 @@ router.post('/', async (req, res) => {
 
     // Create chat completion with user or system token
     const result = await createChatCompletion(messages, {
-      model,
+      model: model || 'gpt-4o', // Force GPT-4o as default
       userApiKey,
       temperature,
       maxTokens,
       systemPrompt,
-      enableDynamicSelection: true
+      enableDynamicSelection: false // Disable dynamic selection for reliability
     });
 
     // Return successful response

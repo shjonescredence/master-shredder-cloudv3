@@ -118,26 +118,29 @@ export async function createChatCompletion(
     temperature = 0.7,
     maxTokens = 4000,
     systemPrompt = '',
-    enableDynamicSelection = true
+    enableDynamicSelection = false // Disable dynamic selection by default
   } = options;
 
   try {
     // Get appropriate OpenAI client
     const openai = await getOpenAIClient(userApiKey);
     
-    let selectedModel = userSpecifiedModel || process.env.DEFAULT_MODEL || 'gpt-4-turbo';
+    // Force GPT-4o as the default model, disable dynamic selection
+    let selectedModel = userSpecifiedModel || 'gpt-4o';
     let modelSelection: ModelSelectionResult | null = null;
 
-    // Use dynamic model selection if enabled and no specific model requested
-    if (enableDynamicSelection && !userSpecifiedModel) {
-      const userMessage = messages[messages.length - 1]?.content || '';
-      const context = messages.slice(1, -1); // Exclude system prompt and current message
-      
-      modelSelection = analyzeAndSelectModel(userMessage, context, systemPrompt);
-      selectedModel = modelSelection.model;
-      
-      console.log(`Dynamic model selection: ${selectedModel} - ${modelSelection.reasoning}`);
-    }
+    // Skip dynamic model selection - use fixed model for reliability
+    // if (enableDynamicSelection && !userSpecifiedModel) {
+    //   const userMessage = messages[messages.length - 1]?.content || '';
+    //   const context = messages.slice(1, -1); // Exclude system prompt and current message
+    //   
+    //   modelSelection = analyzeAndSelectModel(userMessage, context, systemPrompt);
+    //   selectedModel = modelSelection.model;
+    //   
+    //   console.log(`Dynamic model selection: ${selectedModel} - ${modelSelection.reasoning}`);
+    // }
+    
+    console.log(`🤖 Using fixed model: ${selectedModel}`);
     
     // Create chat completion
     const response = await openai.chat.completions.create({
