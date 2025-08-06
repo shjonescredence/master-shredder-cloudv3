@@ -89,7 +89,8 @@ export async function testApiKey(apiKey: string): Promise<boolean> {
     await client.models.list();
     return true;
   } catch (error) {
-    console.error('API key test failed:', error);
+    // Log error without exposing API key details
+    console.error('API key validation failed - key is invalid or has insufficient permissions');
     return false;
   }
 }

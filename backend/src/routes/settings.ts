@@ -46,16 +46,17 @@ router.post('/validate-token', async (req, res) => {
       });
     }
   } catch (error: any) {
-    console.error('🚨 Token validation error:', error.message || error);
+    // Never log the actual error details that might contain API key info
+    console.error('🚨 Token validation failed - OpenAI rejected the key');
     
     // Provide user-friendly error messages based on error type
     let errorMessage = 'Failed to validate API key';
     
-    if (error.message && error.message.includes('insufficient_quota')) {
+    if (error.code === 'insufficient_quota') {
       errorMessage = 'API key is valid but has insufficient quota. Please check your OpenAI account balance.';
-    } else if (error.message && error.message.includes('invalid_api_key')) {
+    } else if (error.code === 'invalid_api_key' || error.status === 401) {
       errorMessage = 'Invalid API key. Please check your OpenAI API key.';
-    } else if (error.message && error.message.includes('network')) {
+    } else if (error.message && error.message.toLowerCase().includes('network')) {
       errorMessage = 'Network error connecting to OpenAI. Please try again.';
     }
     
