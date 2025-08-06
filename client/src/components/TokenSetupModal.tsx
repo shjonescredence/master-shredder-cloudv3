@@ -151,15 +151,15 @@ export const TokenSetupModal: React.FC<TokenSetupModalProps> = ({
               </div>
               
               <div className="setup-info">
-                <div className="info-item">
+                <div className="info-item security-info">
                   <span className="info-icon">🔒</span>
                   <span>Your API key is encrypted and stored locally</span>
                 </div>
-                <div className="info-item">
+                <div className="info-item security-info">
                   <span className="info-icon">🌐</span>
                   <span>Keys are only sent directly to OpenAI's servers</span>
                 </div>
-                <div className="info-item">
+                <div className="info-item security-info">
                   <span className="info-icon">💾</span>
                   <span>No server storage - complete privacy</span>
                 </div>
