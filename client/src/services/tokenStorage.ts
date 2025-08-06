@@ -88,7 +88,8 @@ export function clearToken(): void {
 }
 
 /**
- * Validate OpenAI API key format
+ * Validate OpenAI API key format (client-side quick check only)
+ * Real validation happens on the backend for security
  */
 export function validateToken(token: string): { isValid: boolean; error?: string } {
   if (!token || token.trim().length === 0) {
@@ -114,23 +115,23 @@ export function validateToken(token: string): { isValid: boolean; error?: string
     };
   }
 
+  // Note: This is only basic format validation
+  // Real security validation happens on the backend
   return { isValid: true };
 }
 
 /**
- * Test if an API key is valid by making a simple API call
+ * Test if an API key is valid by using the backend validation endpoint
  */
 export async function testToken(token: string): Promise<{ isValid: boolean; error?: string }> {
   try {
-    const response = await fetch('/api/chat', {
+    const response = await fetch('/api/settings/validate-token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: 'Test connection',
-        userApiKey: token,
-        model: 'gpt-3.5-turbo'
+        apiKey: token
       }),
     });
 
@@ -138,14 +139,11 @@ export async function testToken(token: string): Promise<{ isValid: boolean; erro
     
     if (result.success) {
       return { isValid: true };
-    } else if (result.error && result.error.includes('Invalid API key')) {
-      return { isValid: false, error: 'Invalid API key. Please check your OpenAI API key.' };
-    } else if (result.error && result.error.includes('insufficient quota')) {
-      return { isValid: false, error: 'API key valid but insufficient quota. Please check your OpenAI account balance.' };
     } else {
       return { isValid: false, error: result.error || 'Failed to validate API key' };
     }
   } catch (error) {
+    console.error('Token validation error:', error);
     return { 
       isValid: false, 
       error: 'Network error while validating API key. Please check your connection.' 

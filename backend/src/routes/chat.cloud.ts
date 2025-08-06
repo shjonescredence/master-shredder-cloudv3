@@ -29,6 +29,13 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Debug: Log API key information (without exposing full key)
+    if (userApiKey) {
+      console.log(`Using user API key: ${userApiKey.substring(0, 8)}...${userApiKey.slice(-4)} (length: ${userApiKey.length})`);
+    } else {
+      console.log('No user API key provided, will attempt to use system key');
+    }
+
     // Build messages array
     const messages = [
       { role: 'system', content: systemPrompt },

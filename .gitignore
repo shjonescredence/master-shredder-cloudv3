@@ -1,5 +1,12 @@
 # Environment variables
 .env
+.env.local
+.env.development
+.env.production
+
+# Test files with API keys
+test-api.js
+test-*.js
 
 # Python
 __pycache__/

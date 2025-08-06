@@ -6,6 +6,7 @@ const router = express.Router();
 /**
  * POST /api/settings/validate-token
  * Validate user-provided OpenAI API key
+ * Enhanced security: API keys are never logged or stored
  */
 router.post('/validate-token', async (req, res) => {
   try {
@@ -18,7 +19,7 @@ router.post('/validate-token', async (req, res) => {
       });
     }
 
-    // First check format
+    // First check format (without logging the actual key)
     if (!validateApiKey(apiKey)) {
       return res.status(400).json({
         success: false,
@@ -26,25 +27,41 @@ router.post('/validate-token', async (req, res) => {
       });
     }
 
+    console.log('🔑 Validating user API key (format valid, testing with OpenAI...)');
+
     // Test the key with OpenAI
     const isValid = await testApiKey(apiKey);
 
     if (isValid) {
+      console.log('✅ User API key validated successfully');
       res.json({
         success: true,
         message: 'API key is valid and working'
       });
     } else {
+      console.log('❌ User API key validation failed');
       res.status(401).json({
         success: false,
         error: 'API key is invalid or has insufficient permissions'
       });
     }
   } catch (error: any) {
-    console.error('Token validation error:', error);
+    console.error('🚨 Token validation error:', error.message || error);
+    
+    // Provide user-friendly error messages based on error type
+    let errorMessage = 'Failed to validate API key';
+    
+    if (error.message && error.message.includes('insufficient_quota')) {
+      errorMessage = 'API key is valid but has insufficient quota. Please check your OpenAI account balance.';
+    } else if (error.message && error.message.includes('invalid_api_key')) {
+      errorMessage = 'Invalid API key. Please check your OpenAI API key.';
+    } else if (error.message && error.message.includes('network')) {
+      errorMessage = 'Network error connecting to OpenAI. Please try again.';
+    }
+    
     res.status(500).json({
       success: false,
-      error: 'Failed to validate API key'
+      error: errorMessage
     });
   }
 });
