@@ -3,6 +3,7 @@ import { ChatInterface } from './components/ChatInterface';
 import { SettingsPanel } from './components/SettingsPanel';
 import { CaptureAssistant } from './components/CaptureAssistant';
 import { TokenSetupModal } from './components/TokenSetupModal';
+import { GridLayout } from './components/GridLayout';
 import { getStoredToken, getTokenStatus } from './services/tokenStorage';
 import './App.css';
 
@@ -106,9 +107,13 @@ function App() {
         />
       )}
 
-      <div className="centered-layout">
-        {/* Federal Contract Capture Assistant */}
-        <div className="panel capture-panel">
+      <GridLayout
+        columns={12}
+        gap="20px"
+        className="main-layout"
+      >
+        {/* Federal Contract Capture Assistant - Full width */}
+        <div className="panel capture-panel" data-grid-column="1 / -1">
           <CaptureAssistant
             onPromptSelect={handleCapturePrompt}
             isTokenValid={isTokenValid}
@@ -116,8 +121,8 @@ function App() {
           />
         </div>
 
-        {/* Main Chat Interface - Now takes full width */}
-        <div className="panel chat-panel expanded">
+        {/* Main Chat Interface - Takes majority of width */}
+        <div className="panel chat-panel expanded" data-grid-column="1 / 9">
           <ChatInterface
             userApiKey={userApiKey}
             isTokenValid={isTokenValid}
@@ -128,8 +133,8 @@ function App() {
           />
         </div>
 
-        {/* Simplified Settings Panel */}
-        <div className="panel settings-panel">
+        {/* Settings Panel - Right sidebar */}
+        <div className="panel settings-panel" data-grid-column="9 / -1">
           <SettingsPanel
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
@@ -138,7 +143,7 @@ function App() {
             onTokenReset={() => setShowTokenSetup(true)}
           />
         </div>
-      </div>
+      </GridLayout>
 
       {/* Footer */}
       <footer className="app-footer">

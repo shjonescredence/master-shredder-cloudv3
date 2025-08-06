@@ -60,18 +60,15 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Main Layout */
-.centered-layout {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
+/* Main Layout using GridLayout component */
+.main-layout {
   max-width: 1400px;
   width: 100%;
   height: 85vh;
-  align-items: stretch;
+  margin: 0 auto;
 }
 
-/* Panel Base Styles */
+/* Panel Base Styles - Updated for GridLayout */
 .panel {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -80,23 +77,47 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow-y: auto;
-  flex: 1;
-  min-width: 300px;
+  height: 100%;
+  transition: all 0.3s ease;
 }
 
-.panel:first-child {
-  max-width: 350px;
+.panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .panel.capture-panel {
-  grid-column: 1 / -1; /* Full width */
-  max-width: none;
+  height: auto;
+  min-height: 200px;
   margin-bottom: 20px;
 }
 
 .panel.chat-panel {
-  flex: 2;
-  min-width: 400px;
+  min-height: 600px;
+}
+
+.panel.settings-panel {
+  min-height: 400px;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .main-layout {
+    height: auto;
+    gap: 15px !important;
+  }
+  
+  .panel.capture-panel,
+  .panel.chat-panel,
+  .panel.settings-panel {
+    grid-column: 1 / -1 !important;
+    min-height: 300px;
+  }
+  
+  .panel {
+    margin-bottom: 15px;
+    padding: 16px;
+  }
 }
 
 .panel.chat-panel.expanded {
