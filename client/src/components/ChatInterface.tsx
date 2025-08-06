@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './ChatInterface.css';
 import { FileUpload } from './FileUpload';
 
@@ -10,6 +10,7 @@ interface ChatMessage {
   tokenSource?: 'user' | 'system';
   model?: string;
   attachedFiles?: string[]; // File names that were attached to this message
+  isStreaming?: boolean; // For streaming responses
 }
 
 interface UploadedFile {
