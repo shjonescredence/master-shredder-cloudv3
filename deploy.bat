@@ -8,7 +8,7 @@ echo 🔄 Starting containers...
 docker-compose up -d
 
 echo ✅ Deployment complete!
-echo 📱 Master Shredder is available at: http://localhost:8000
+echo 📱 Master Shredder is available at: http://localhost:8080
 echo 📊 Check status: docker-compose logs -f credo-assistant
 
 pause

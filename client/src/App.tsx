@@ -1,76 +1,157 @@
-/* App container and layout */
-.app-container {
-  display: flex;
-  justify-content: center;     /* center children horizontally */
-  align-items: center;         /* center children vertically */
-  height: 100vh;
-  width: 100vw;
-  background-color: #f5f7fa;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+import React, { useState, useEffect } from 'react';
+import { ChatInterface } from './components/ChatInterface';
+import { SettingsPanel } from './components/SettingsPanel';
+import { CaptureAssistant } from './components/CaptureAssistant';
+import { TokenSetupModal } from './components/TokenSetupModal';
+import { GridLayout } from './components/GridLayout';
+import { getStoredToken, getTokenStatus } from './services/tokenStorage';
+import './App.css';
+
+interface AppConfig {
+  defaultModel: string;
+  allowUserTokens: boolean;
+  systemTokenAvailable: boolean;
+  environment: string;
+  version: string;
 }
 
-/* Centered layout for columns */
-.centered-layout {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: stretch;
-  gap: 20px;
-  max-width: 1200px;
-  width: 100%;
-  height: 90vh;
+interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  content: string;
+  uploadDate: Date;
 }
 
-/* Panel style for all columns */
-.panel {
-  background-color: #1f1f1f;
-  border-radius: 12px;
-  padding: 16px;
-  flex: 1 1 0;
-  max-width: 360px;
-  height: 100%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  overflow-y: auto;
-  color: #fff;
+function App() {
+  const [userApiKey, setUserApiKey] = useState<string>('');
+  const [isTokenValid, setIsTokenValid] = useState<boolean>(false);
+  const [selectedModel, setSelectedModel] = useState<string>('gpt-4-turbo');
+  const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [capturePrompt, setCapturePrompt] = useState<string>('');
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [showTokenSetup, setShowTokenSetup] = useState<boolean>(false);
+
+  // Load app configuration and check token status on startup
+  useEffect(() => {
+    initializeApp();
+  }, []);
+
+  const initializeApp = async () => {
+    try {
+      // Load app configuration
+      const response = await fetch('/api/settings/config');
+      if (response.ok) {
+        const config = await response.json();
+        setAppConfig(config.config);
+        setSelectedModel(config.config.defaultModel);
+      }
+
+      // Check token status
+      const tokenStatus = getTokenStatus();
+      if (tokenStatus.hasToken && tokenStatus.isSetupComplete) {
+        const storedToken = getStoredToken();
+        if (storedToken) {
+          setUserApiKey(storedToken);
+          setIsTokenValid(true);
+        }
+      } else {
+        // Show setup modal if no token or setup not complete
+        setShowTokenSetup(true);
+      }
+    } catch (error) {
+      console.error('Failed to initialize app:', error);
+      // Show setup modal on error as fallback
+      setShowTokenSetup(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTokenSetupComplete = (token: string) => {
+    setUserApiKey(token);
+    setIsTokenValid(true);
+    setShowTokenSetup(false);
+  };
+
+  const handleTokenSetupSkip = () => {
+    setShowTokenSetup(false);
+    // Continue with system token if available
+  };
+
+  const handleCapturePrompt = (prompt: string) => {
+    setCapturePrompt(prompt);
+  };
+
+  if (loading) {
+    return (
+      <div className="app-container loading">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Loading Master Shredder...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-container">
+      {/* Token Setup Modal */}
+      {showTokenSetup && (
+        <TokenSetupModal
+          onSetupComplete={handleTokenSetupComplete}
+          onSkip={handleTokenSetupSkip}
+          allowSkip={appConfig?.systemTokenAvailable}
+        />
+      )}
+
+      <GridLayout
+        columns={12}
+        gap="20px"
+        className="main-layout"
+      >
+        {/* Federal Contract Capture Assistant - Full width */}
+        <div className="panel capture-panel" data-grid-column="1 / -1">
+          <CaptureAssistant
+            onPromptSelect={handleCapturePrompt}
+            isTokenValid={isTokenValid}
+            uploadedFiles={uploadedFiles}
+          />
+        </div>
+
+        {/* Main Chat Interface - Takes majority of width */}
+        <div className="panel chat-panel expanded" data-grid-column="1 / 9">
+          <ChatInterface
+            userApiKey={userApiKey}
+            isTokenValid={isTokenValid}
+            selectedModel={selectedModel}
+            systemTokenAvailable={appConfig?.systemTokenAvailable || false}
+            initialPrompt={capturePrompt}
+            onPromptUsed={() => setCapturePrompt('')}
+          />
+        </div>
+
+        {/* Settings Panel - Right sidebar */}
+        <div className="panel settings-panel" data-grid-column="9 / -1">
+          <SettingsPanel
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            userApiKey={userApiKey}
+            appConfig={appConfig}
+            onTokenReset={() => setShowTokenSetup(true)}
+          />
+        </div>
+      </GridLayout>
+
+      {/* Footer */}
+      <footer className="app-footer">
+        <p>Master Shredder Cloud v{appConfig?.version || '3.0'} - Federal Contract Capture Assistant | {appConfig?.environment || 'development'}</p>
+        <p>🎯 Specialized AI for Government Contracting Professionals</p>
+      </footer>
+    </div>
+  );
 }
 
-/* Chat container */
-.chat-container {
-  /* Remove flex: 1, let .panel handle sizing */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  overflow-y: auto;
-  padding: 0;
-  background: none;
-  scroll-behavior: smooth;
-}
-
-/* Input area */
-.input-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: #232323;
-  border-top: 1px solid #333;
-  gap: 10px;
-  width: 100%;
-}
-
-/* Welcome message - already centered well, just ensure it's constrained */
-.welcome-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 40px auto;
-  max-width: 500px;
-  padding: 30px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
+export default App;

@@ -18,6 +18,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.682.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.682.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
