@@ -19,7 +19,13 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(135deg, var(--credence-red) 0%, var(--credence-dark-red) 100%);
+  /* Lightened red theme with more neutral/white blend */
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.15) 0%,
+    rgba(255, 105, 125, 0.35) 15%,
+    rgba(196, 30, 58, 0.65) 45%,
+    rgba(155, 28, 47, 0.75) 70%,
+    rgba(120, 22, 38, 0.85) 100%);
   color: var(--credence-light);
   overflow-x: hidden;
 }
@@ -131,9 +137,13 @@ body {
 
 .panel.chat-panel {
   min-height: 600px;
-  background: transparent;
+  background: initial; /* Let the component handle its own background */
   padding: 0;
   overflow: hidden;
+  /* Remove all styling that interferes with component design */
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .panel.settings-panel {
@@ -145,9 +155,14 @@ body {
 
 /* Right Panel - Match Assistant Panel Styling */
 .right-panel {
+  /* Unified gradient (adjusted if previously set) */
   background: linear-gradient(135deg, rgba(25, 30, 35, 0.95), rgba(30, 35, 45, 0.98));
   border: 1px solid rgba(100, 120, 140, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Panel Content - Common styling for panel content areas */
@@ -1914,11 +1929,6 @@ body {
   
   .main-layout {
     height: calc(100vh - 100px);
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 16px;
-    max-width: none;
-  }
   
   .upload-panel {
     grid-column: 1;

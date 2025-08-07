@@ -334,16 +334,14 @@ function App() {
         </div>
 
         {/* Chat Interface - Main panel */}
-        <div className="panel chat-panel">
-          <ChatInterface
-            userApiKey={userApiKey}
-            isTokenValid={isTokenValid}
-            selectedModel={selectedModel}
-            systemTokenAvailable={appConfig?.systemTokenAvailable || false}
-            initialPrompt={capturePrompt}
-            onPromptUsed={() => setCapturePrompt('')}
-          />
-        </div>
+        <ChatInterface
+          userApiKey={userApiKey}
+          isTokenValid={isTokenValid}
+          selectedModel={selectedModel}
+          systemTokenAvailable={appConfig?.systemTokenAvailable || false}
+          initialPrompt={capturePrompt}
+          onPromptUsed={() => setCapturePrompt('')}
+        />
 
         {/* Right Panel - Tools and Analysis */}
         <div className="panel right-panel">

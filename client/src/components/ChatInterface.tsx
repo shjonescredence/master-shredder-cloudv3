@@ -1,5 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+// CSS imports MUST be first
+import '../App.css';
 import './ChatInterface.css';
+
+// Then all other imports
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FileUpload } from './FileUpload';
 
 interface ChatMessage {
