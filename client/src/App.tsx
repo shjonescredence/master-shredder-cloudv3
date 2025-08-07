@@ -4,9 +4,11 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { CaptureAssistant } from './components/CaptureAssistant';
 import { TokenSetupModal } from './components/TokenSetupModal';
 import { DocumentAnalyzer } from './components/DocumentAnalyzer';
+import { SettingsModal } from './components/SettingsModal';
 import { getStoredToken, getTokenStatus } from './services/tokenStorage';
 import './App.css';
 import './components/DocumentAnalyzer.css';
+import './components/SettingsModal.css';
 
 interface AppConfig {
   defaultModel: string;
@@ -35,6 +37,7 @@ function App() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [showTokenSetup, setShowTokenSetup] = useState<boolean>(false);
   const [showShipleyIndicators, setShowShipleyIndicators] = useState<boolean>(false);
+  const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
 
   // Load app configuration and check token status on startup
   useEffect(() => {
@@ -162,6 +165,14 @@ function App() {
     setCapturePrompt(prompt);
   };
 
+  const handleOpenSettings = () => {
+    setShowSettingsModal(true);
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettingsModal(false);
+  };
+
   if (loading) {
     return (
       <div className="app-container loading">
@@ -214,6 +225,41 @@ function App() {
         />
       )}
 
+      {/* Settings Gear Button */}
+      <button 
+        className="settings-gear-button"
+        onClick={handleOpenSettings}
+        title="Settings"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="m12 1 0 6m0 6 0 6"/>
+          <path d="m9 2 0 20"/>
+          <path d="m15 2 0 20"/>
+          <path d="m20.49 9-5.73-0.68"/>
+          <path d="m3.51 9 5.73-0.68"/>
+          <path d="m20.49 15-5.73 0.68"/>
+          <path d="m3.51 15 5.73 0.68"/>
+          <path d="m17.5 8.5-2.85 2.85"/>
+          <path d="m9.35 16.15-2.85-2.85"/>
+          <path d="m17.5 15.5-2.85-2.85"/>
+          <path d="m9.35 7.85-2.85 2.85"/>
+        </svg>
+      </button>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={handleCloseSettings}
+        selectedModel={selectedModel}
+        onModelChange={setSelectedModel}
+        userApiKey={userApiKey}
+        appConfig={appConfig}
+        onTokenReset={() => setShowTokenSetup(true)}
+        showShipleyIndicators={showShipleyIndicators}
+        onToggleShipley={toggleShipley}
+      />
+
       <div className="main-layout">
         {/* Upload Panel */}
         <div className="panel upload-panel">
@@ -241,7 +287,7 @@ function App() {
             
             <div className="capability-cards">
               <div className="capability-card" onClick={() => handleCapability('rfp-analysis')}>
-                <div className="capability-icon">�</div>
+                <div className="capability-icon">🔍</div>
                 <div className="capability-content">
                   <h4>RFP Analysis</h4>
                   <p>Upload or drag-drop documents for instant shredding and requirement extraction</p>
@@ -249,7 +295,7 @@ function App() {
               </div>
               
               <div className="capability-card" onClick={() => handleCapability('compliance')}>
-                <div className="capability-icon">�</div>
+                <div className="capability-icon">✅</div>
                 <div className="capability-content">
                   <h4>Compliance</h4>
                   <p>Generate compliance matrices and checklists</p>
@@ -273,7 +319,7 @@ function App() {
               </div>
               
               <div className="capability-card" onClick={() => handleCapability('proposal-support')}>
-                <div className="capability-icon">�</div>
+                <div className="capability-icon">📝</div>
                 <div className="capability-content">
                   <h4>Proposal Support</h4>
                   <p>Content development and win themes</p>
@@ -299,9 +345,9 @@ function App() {
           />
         </div>
 
-        {/* Settings Panel */}
-        <div className="panel settings-panel">
-          <div className="settings-content">
+        {/* Right Panel - Tools and Analysis */}
+        <div className="panel right-panel">
+          <div className="panel-content">
             {/* Top App Icons */}
             <div className="app-icons-section">
               <div className="app-icon master-shredder-icon" onClick={() => handleAppTool('rfp-shredder')} title="Master Shredder - RFP Analysis">
@@ -310,7 +356,7 @@ function App() {
                   alt="Master Shredder" 
                   className="shredder-icon-img"
                   onError={(e) => {
-                    console.log('Settings logo failed to load, falling back to SVG');
+                    console.log('Right panel logo failed to load, falling back to SVG');
                     e.currentTarget.src = '/shredder-logo.svg';
                   }}
                 />
@@ -354,15 +400,6 @@ function App() {
                 <span className="toggle-label">Show Shipley compliance indicators</span>
               </div>
             </div>
-            
-            {/* Settings Panel Content */}
-            <SettingsPanel
-              selectedModel={selectedModel}
-              onModelChange={setSelectedModel}
-              userApiKey={userApiKey}
-              appConfig={appConfig}
-              onTokenReset={() => setShowTokenSetup(true)}
-            />
           </div>
         </div>
       </div>

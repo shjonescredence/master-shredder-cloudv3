@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CollapsibleCard } from './CollapsibleCard';
+import { CollapsibleCard } from './CollapsibleCard.tsx';
 
 interface AnalysisResult {
   summary: string;
@@ -72,57 +72,81 @@ Confidence: 5/10 – Based on scope inference and publicly available capability 
   };
 
   return (
-    <div className="document-analyzer">
-      <div className="analyzer-header">
-        <h3>📄 Document Analysis</h3>
-        <p>Paste your PWS or capability statement for AI-powered analysis</p>
+    <div className="document-analyzer-enhanced">
+      {/* Enhanced Header with Glass Effect */}
+      <div className="analyzer-header-glass">
+        <div className="header-content">
+          <div className="icon-wrapper">
+            <span className="header-icon">📄</span>
+          </div>
+          <div className="header-text">
+            <h3>Document Analysis</h3>
+            <p>Paste your PWS or capability statement for AI-powered analysis</p>
+          </div>
+        </div>
       </div>
 
-      <div className="analyzer-input-section">
-        <textarea
-          className="analyzer-textarea"
-          placeholder="Paste PWS or capability overview text here..."
-          value={documentText}
-          onChange={(e) => setDocumentText(e.target.value)}
-          rows={8}
-        />
+      {/* Enhanced Input Section */}
+      <div className="analyzer-input-enhanced">
+        <div className="textarea-wrapper">
+          <div className="textarea-header">
+            <span className="input-label">📝 Document Content</span>
+            <span className="character-count">{documentText.length} characters</span>
+          </div>
+          <textarea
+            className="analyzer-textarea-modern"
+            placeholder="Paste PWS or capability overview text here..."
+            value={documentText}
+            onChange={(e) => setDocumentText(e.target.value)}
+            rows={8}
+          />
+        </div>
         
-        <div className="analyzer-actions">
+        <div className="analyzer-actions-modern">
           <button
-            className="analyze-btn primary"
+            className="analyze-btn-modern primary-gradient"
             onClick={handleAnalyze}
             disabled={!documentText.trim() || isAnalyzing}
           >
             {isAnalyzing ? (
               <>
-                <div className="spinner-small"></div>
-                Analyzing...
+                <div className="spinner-modern"></div>
+                <span>Analyzing...</span>
               </>
             ) : (
               <>
-                🔍 Analyze Document
+                <span className="btn-icon">🔍</span>
+                <span>Analyze Document</span>
               </>
             )}
           </button>
           
           {documentText && (
             <button
-              className="clear-btn secondary"
+              className="clear-btn-modern secondary-outline"
               onClick={handleClear}
             >
-              🗑️ Clear
+              <span className="btn-icon">🗑️</span>
+              <span>Clear</span>
             </button>
           )}
         </div>
       </div>
 
+      {/* Enhanced Results Section */}
       {analysisResult && (
-        <div className="analysis-results">
-          <div className="results-header">
-            <h4>📊 Analysis Results</h4>
+        <div className="analysis-results-enhanced">
+          <div className="results-header-modern">
+            <div className="results-title">
+              <span className="results-icon">📊</span>
+              <h4>Analysis Results</h4>
+            </div>
+            <div className="results-badge">
+              <span className="badge-text">3 Sections</span>
+            </div>
           </div>
           
-          <div className="results-cards">
+          <div className="results-cards-grid">
             <CollapsibleCard
               title="Executive Summary"
               icon="📝"
