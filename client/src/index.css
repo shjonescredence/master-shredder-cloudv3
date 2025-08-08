@@ -163,7 +163,7 @@
   }
   
   .glow-purple {
-    @apply shadow-glow-purple;
+    box-shadow: 0 0 16px 4px rgba(139, 92, 246, 0.6); /* purple-500 glow */
   }
 
   /* Scrollbar */
