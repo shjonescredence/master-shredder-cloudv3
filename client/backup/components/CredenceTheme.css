@@ -1,0 +1,71 @@
+/* Credence LLC Red Color Scheme - Master Shredder Theme */
+:root {
+  --credence-red: #C41E3A;
+  --credence-dark-red: #9B1C2F;
+  --credence-light-red: #DC2B4A;
+  --credence-accent: #8B1538;
+  --credence-neutral: #2C3E50;
+  --credence-light: #ECF0F1;
+  --credence-dark: #1A1A1A;
+}
+
+/* Global theme application */
+body {
+  background: linear-gradient(135deg, var(--credence-red) 0%, var(--credence-dark-red) 100%);
+  color: var(--credence-light);
+}
+
+/* Primary buttons and interactive elements */
+.btn-primary,
+.shred-start {
+  background: linear-gradient(135deg, var(--credence-red), var(--credence-dark-red));
+  border: none;
+  color: white;
+  box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
+}
+
+.btn-primary:hover:not(:disabled),
+.shred-start:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--credence-light-red), var(--credence-red));
+  box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+}
+
+/* Headers and navigation */
+header {
+  background: rgba(196, 30, 58, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(196, 30, 58, 0.2);
+}
+
+/* Status indicators and highlights */
+.status {
+  background: linear-gradient(135deg, rgba(196, 30, 58, 0.2) 0%, rgba(155, 28, 47, 0.2) 100%);
+  backdrop-filter: blur(10px);
+  color: white;
+}
+
+/* Links and accents */
+a, .link {
+  color: var(--credence-light-red);
+}
+
+a:hover, .link:hover {
+  color: var(--credence-red);
+}
+
+/* Panels and containers */
+.panel {
+  background: rgba(196, 30, 58, 0.05);
+  border: 1px solid rgba(196, 30, 58, 0.1);
+}
+
+/* Processing and active states */
+.shred-section.processing::before {
+  background: linear-gradient(90deg, var(--credence-red), var(--credence-light-red));
+}
+
+.shred-section.active {
+  border-color: rgba(196, 30, 58, 0.5);
+  background: rgba(196, 30, 58, 0.1);
+  box-shadow: 0 8px 25px rgba(196, 30, 58, 0.2);
+}
