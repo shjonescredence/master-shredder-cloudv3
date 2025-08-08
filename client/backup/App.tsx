@@ -5,8 +5,6 @@ import { CaptureAssistant } from './components/CaptureAssistant';
 import { TokenSetupModal } from './components/TokenSetupModal';
 import { DocumentAnalyzer } from './components/DocumentAnalyzer';
 import { SettingsModal } from './components/SettingsModal';
-import { ThemeProvider } from './components/ThemeProvider';
-import { ThemeToggle } from './components/ThemeToggle';
 import { getStoredToken, getTokenStatus } from './services/tokenStorage';
 import './App.css';
 import './components/DocumentAnalyzer.css';
@@ -187,18 +185,17 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <div className="app-container dark:bg-gray-900">
-        {/* App Header with Master Shredder Branding */}
-        <header className="app-header">
-          <div className="brand-section">
-            <img 
-              src="/shredder-logo.png?v=1" 
-              alt="Master Shredder" 
-              className="app-logo"
-              onError={(e) => {
-                console.log('Logo failed to load, falling back to SVG');
-                e.currentTarget.src = '/shredder-logo.svg';
+    <div className="app-container">
+      {/* App Header with Master Shredder Branding */}
+      <header className="app-header">
+        <div className="brand-section">
+          <img 
+            src="/shredder-logo.png?v=1" 
+            alt="Master Shredder" 
+            className="app-logo"
+            onError={(e) => {
+              console.log('Logo failed to load, falling back to SVG');
+              e.currentTarget.src = '/shredder-logo.svg';
             }}
           />
           <div className="brand-text">
@@ -229,29 +226,26 @@ function App() {
       )}
 
       {/* Settings Gear Button */}
-      <div className="flex items-center space-x-2">
-        <ThemeToggle />
-        <button 
-          className="settings-gear-button"
-          onClick={handleOpenSettings}
-          title="Settings"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="m12 1 0 6m0 6 0 6"/>
-            <path d="m9 2 0 20"/>
-            <path d="m15 2 0 20"/>
-            <path d="m20.49 9-5.73-0.68"/>
-            <path d="m3.51 9 5.73-0.68"/>
-            <path d="m20.49 15-5.73 0.68"/>
-            <path d="m3.51 15 5.73 0.68"/>
-            <path d="m17.5 8.5-2.85 2.85"/>
-            <path d="m9.35 16.15-2.85-2.85"/>
-            <path d="m17.5 15.5-2.85-2.85"/>
-            <path d="m9.35 7.85-2.85 2.85"/>
-          </svg>
-        </button>
-      </div>
+      <button 
+        className="settings-gear-button"
+        onClick={handleOpenSettings}
+        title="Settings"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="m12 1 0 6m0 6 0 6"/>
+          <path d="m9 2 0 20"/>
+          <path d="m15 2 0 20"/>
+          <path d="m20.49 9-5.73-0.68"/>
+          <path d="m3.51 9 5.73-0.68"/>
+          <path d="m20.49 15-5.73 0.68"/>
+          <path d="m3.51 15 5.73 0.68"/>
+          <path d="m17.5 8.5-2.85 2.85"/>
+          <path d="m9.35 16.15-2.85-2.85"/>
+          <path d="m17.5 15.5-2.85-2.85"/>
+          <path d="m9.35 7.85-2.85 2.85"/>
+        </svg>
+      </button>
 
       {/* Settings Modal */}
       <SettingsModal
@@ -409,12 +403,11 @@ function App() {
       </div>
 
       {/* Footer */}
-      <footer className="app-footer dark:bg-gray-800 dark:text-gray-300">
+      <footer className="app-footer">
         <p>Master Shredder Cloud v{appConfig?.version || '3.0'} - Federal Contract Capture Assistant | {appConfig?.environment || 'development'}</p>
         <p>🎯 Specialized AI for Government Contracting Professionals</p>
       </footer>
     </div>
-    </ThemeProvider>
   );
 }
 

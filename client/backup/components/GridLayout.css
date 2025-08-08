@@ -1,0 +1,124 @@
+/* Master Shredder - Enhanced Grid Layout System */
+
+.grid-layout {
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.grid-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(196, 30, 58, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(15px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--credence-red), var(--credence-light-red));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.grid-item:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(196, 30, 58, 0.3);
+  box-shadow: 0 15px 35px rgba(196, 30, 58, 0.2);
+}
+
+.grid-item:hover::before {
+  opacity: 1;
+}
+
+/* Responsive Grid Layouts */
+@media (max-width: 1200px) {
+  .grid-layout {
+    grid-template-columns: repeat(2, 1fr) !important;
+    padding: 1.5rem;
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-layout {
+    grid-template-columns: 1fr !important;
+    padding: 1rem;
+    gap: 1rem !important;
+  }
+  
+  .grid-item {
+    padding: 1rem;
+  }
+}
+
+/* Special Grid Item Variants */
+.grid-item.featured {
+  background: rgba(196, 30, 58, 0.1);
+  border-color: rgba(196, 30, 58, 0.3);
+}
+
+.grid-item.featured::before {
+  opacity: 1;
+  background: linear-gradient(90deg, var(--credence-light-red), var(--credence-red));
+}
+
+.grid-item.compact {
+  padding: 1rem;
+  min-height: auto;
+}
+
+.grid-item.tall {
+  min-height: 300px;
+}
+
+/* Loading State */
+.grid-item.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-item.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(196, 30, 58, 0.1), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Grid Layout Animations */
+.grid-layout.animate-in .grid-item {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideInUp 0.6s ease forwards;
+}
+
+.grid-layout.animate-in .grid-item:nth-child(1) { animation-delay: 0.1s; }
+.grid-layout.animate-in .grid-item:nth-child(2) { animation-delay: 0.2s; }
+.grid-layout.animate-in .grid-item:nth-child(3) { animation-delay: 0.3s; }
+.grid-layout.animate-in .grid-item:nth-child(4) { animation-delay: 0.4s; }
+.grid-layout.animate-in .grid-item:nth-child(5) { animation-delay: 0.5s; }
+.grid-layout.animate-in .grid-item:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes slideInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

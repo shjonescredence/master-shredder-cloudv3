@@ -1,10 +1,8 @@
-// CSS imports MUST be first
-import '../App.css';
-import './ChatInterface.css';
-
-// Then all other imports
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { FileUpload } from './FileUpload';
+import React, { useState, useRef, useEffect } from 'react';
+import { Panel } from './ui/Panel';
+import { Button } from './ui/Button';
+import { Typography } from './ui/Typography';
+import { Status } from './ui/Status';
 
 interface ChatMessage {
   id: string;
@@ -13,17 +11,6 @@ interface ChatMessage {
   timestamp: Date;
   tokenSource?: 'user' | 'system';
   model?: string;
-  attachedFiles?: string[]; // File names that were attached to this message
-  isStreaming?: boolean; // For streaming responses
-}
-
-interface UploadedFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  content: string;
-  uploadDate: Date;
 }
 
 interface ChatInterfaceProps {
@@ -41,111 +28,76 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   selectedModel,
   systemTokenAvailable,
   initialPrompt,
-  onPromptUsed
+  onPromptUsed,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [showFileUpload, setShowFileUpload] = useState<boolean>(false);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = () =>
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+
+  useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Handle initial prompt from Capture Assistant
-  useEffect(() => {
-    if (initialPrompt && initialPrompt.trim()) {
+    if (initialPrompt?.trim()) {
       setInputMessage(initialPrompt);
       onPromptUsed?.();
     }
   }, [initialPrompt, onPromptUsed]);
 
-  const canSendMessage = () => {
-    return (isTokenValid && userApiKey) || systemTokenAvailable;
-  };
-
-  const handleFilesUploaded = (newFiles: UploadedFile[]) => {
-    setUploadedFiles(prev => [...prev, ...newFiles]);
-  };
-
-  const handleFileRemove = (fileId: string) => {
-    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
-  };
-
-  const toggleFileUpload = () => {
-    setShowFileUpload(!showFileUpload);
-  };
+  const canSendMessage = () =>
+    (isTokenValid && userApiKey) || systemTokenAvailable;
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || !canSendMessage()) return;
 
-    // Prepare the message content with file attachments
-    let messageContent = inputMessage.trim();
-    let attachedFileNames: string[] = [];
+    const content = inputMessage.trim();
 
-    if (uploadedFiles.length > 0) {
-      attachedFileNames = uploadedFiles.map(f => f.name);
-      const fileContents = uploadedFiles.map(file => 
-        `\n\n--- FILE: ${file.name} ---\n${file.content}\n--- END FILE ---`
-      ).join('');
-      messageContent += fileContents;
-    }
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: inputMessage.trim(), // Display only the text input, not file contents
-      timestamp: new Date(),
-      attachedFiles: attachedFileNames.length > 0 ? attachedFileNames : undefined
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((m) => [
+      ...m,
+      {
+        id: Date.now().toString(),
+        role: 'user',
+        content,
+        timestamp: new Date(),
+      },
+    ]);
     setInputMessage('');
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await fetch('/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: messageContent, // Send full content including files to API
-          context: messages.slice(-6), // Last 6 messages for context
+          message: content,
+          context: messages.slice(-6),
           model: selectedModel,
           userApiKey: userApiKey || undefined,
         }),
       });
-
-      const result = await response.json();
-
-      if (result.success) {
-        const assistantMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: result.reply,
-          timestamp: new Date(),
-          tokenSource: result.tokenSource,
-          model: result.model
-        };
-
-        setMessages(prev => [...prev, assistantMessage]);
-        
-        // Clear uploaded files after successful message
-        setUploadedFiles([]);
+      const json = await res.json();
+      if (json.success) {
+        setMessages((m) => [
+          ...m,
+          {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: json.reply,
+            timestamp: new Date(),
+            tokenSource: json.tokenSource,
+            model: json.model,
+          },
+        ]);
       } else {
-        setError(result.error || 'Failed to get response');
+        setError(json.error || 'Failed to get response');
       }
-    } catch (error: any) {
-      setError('Network error: ' + error.message);
+    } catch (e: any) {
+      setError('Network error: ' + e.message);
     } finally {
       setIsLoading(false);
     }
@@ -163,175 +115,111 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setError('');
   };
 
-  const formatTimestamp = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  const formatTimestamp = (d: Date) =>
+    d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className="chat-interface">
-      <div className="chat-header">
-        <h2>💬 Federal Contract Capture Assistant</h2>
-        <div className="chat-controls">
-          <button 
-            onClick={toggleFileUpload}
-            className={`btn btn-outline btn-sm ${showFileUpload ? 'active' : ''}`}
-            title="Upload contract documents"
-          >
-            📁 Documents ({uploadedFiles.length})
-          </button>
+    <div className="flex flex-col h-full space-y-4">
+      {/* Header */}
+      <div className="panel-header flex items-center justify-between">
+        <Typography variant="h2">
+          💬 Federal Contract Capture Assistant
+        </Typography>
+        <div className="flex space-x-2">
           {messages.length > 0 && (
-            <button onClick={clearChat} className="btn btn-outline btn-sm">
+            <Button variant="secondary" size="sm" onClick={clearChat}>
               Clear Chat
-            </button>
+            </Button>
           )}
         </div>
-        <div className="chat-status">
-          {canSendMessage() ? (
-            <span className="status-ready">
-              ✅ Ready
-            </span>
-          ) : (
-            <span className="status-waiting">
-              ⚠️ Setup Required
-            </span>
-          )}
-        </div>
+        <Status
+          status={canSendMessage() ? 'ready' : 'info'}
+          message={canSendMessage() ? 'Ready' : 'Setup Required'}
+        />
       </div>
 
-      {/* File Upload Section */}
-      {showFileUpload && (
-        <div className="file-upload-section">
-          <FileUpload
-            onFilesUploaded={handleFilesUploaded}
-            uploadedFiles={uploadedFiles}
-            onFileRemove={handleFileRemove}
-            maxFiles={5}
-            maxSizeBytes={5 * 1024 * 1024} // 5MB
-            acceptedTypes={['.pdf', '.doc', '.docx', '.txt', '.md', '.rtf']}
-          />
-        </div>
-      )}
-
-      <div className="messages-container">
-        {messages.length === 0 ? (
-          <div className="welcome-message">
-            <h3>🚀 Welcome to Federal Contract Capture Assistant!</h3>
-            <p>Your intelligent federal contracting assistant is ready to help analyze RFPs, SOWs, and contract documents.</p>
-            <div className="welcome-features">
-              <div className="feature">
-                <span className="feature-icon">�</span>
-                <span>Document analysis & capture support</span>
-              </div>
-              <div className="feature">
-                <span className="feature-icon">🎯</span>
-                <span>RFP analysis & gap assessment</span>
-              </div>
-              <div className="feature">
-                <span className="feature-icon">�</span>
-                <span>Partner research & teaming</span>
-              </div>
-              <div className="feature">
-                <span className="feature-icon">�</span>
-                <span>Compliance matrices & win strategies</span>
-              </div>
-            </div>
-            <p className="welcome-prompt">
-              {canSendMessage() 
-                ? "Upload contract documents and start analyzing!" 
-                : "Complete setup to get started with AI analysis."}
-            </p>
-          </div>
-        ) : (
-          <div className="messages-list">
-            {messages.map((message) => (
-              <div key={message.id} className={`message message-${message.role}`}>
-                <div className="message-header">
-                  <span className="message-role">
-                    {message.role === 'user' ? '👤 You' : '🤖 Shredder'}
-                  </span>
-                  <span className="message-timestamp">
-                    {formatTimestamp(message.timestamp)}
-                  </span>
-                  {message.tokenSource && (
-                    <span className={`token-source ${message.tokenSource}`}>
-                      {message.tokenSource === 'user' ? '🔑 Your Token' : '🏢 System'}
+      {/* Messages Panel */}
+      <Panel variant="primary" className="flex-1 overflow-hidden">
+        <div className="flex flex-col h-full overflow-y-auto p-4 scrollbar-custom space-y-3">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${
+                msg.role === 'user' ? 'justify-end' : 'justify-start'
+              }`}
+            >
+              <div
+                className={`max-w-[80%] p-4 rounded-lg ${
+                  msg.role === 'user'
+                    ? 'bg-ms-blue-start/20 border border-blue-500/30'
+                    : 'bg-gray-800/50 border border-gray-700'
+                }`}
+              >
+                <Typography variant="body">{msg.content}</Typography>
+                <div className="flex justify-between mt-2 text-xs text-gray-400">
+                  <span>{formatTimestamp(msg.timestamp)}</span>
+                  {msg.tokenSource && (
+                    <span>
+                      {msg.tokenSource === 'user' ? '🔑' : '🏢'}
                     </span>
                   )}
                 </div>
-                <div className="message-content">
-                  {message.content}
-                  {message.attachedFiles && message.attachedFiles.length > 0 && (
-                    <div className="attached-files">
-                      <div className="attached-files-label">📎 Attached documents:</div>
-                      <div className="attached-files-list">
-                        {message.attachedFiles.map((fileName, index) => (
-                          <span key={index} className="attached-file">
-                            📄 {fileName}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {message.model && (
-                  <div className="message-meta">
-                    Model: {message.model}
-                  </div>
-                )}
               </div>
-            ))}
-            {isLoading && (
-              <div className="message message-assistant loading">
-                <div className="message-header">
-                  <span className="message-role">🤖 Shredder</span>
-                  <span className="message-timestamp">...</span>
-                </div>
-                <div className="message-content">
-                  <div className="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+            </div>
+          ))}
 
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="max-w-[80%] p-4 rounded-lg bg-gray-800/50 border border-gray-700">
+                <div className="typing-indicator flex space-x-1">
+                  <span className="animate-bounce">•</span>
+                  <span className="animate-bounce">•</span>
+                  <span className="animate-bounce">•</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+      </Panel>
+
+      {/* Error Banner */}
       {error && (
-        <div className="error-message">
-          <span className="error-icon">⚠️</span>
-          {error}
-          <button onClick={() => setError('')} className="error-close">
+        <div className="flex items-center bg-red-500/10 text-red-500 p-2 rounded-lg space-x-2">
+          <span>⚠️</span>
+          <Typography variant="body-sm" className="flex-1">
+            {error}
+          </Typography>
+          <Button variant="ghost" size="sm" onClick={() => setError('')}>
             ✕
-          </button>
+          </Button>
         </div>
       )}
 
-      <div className="input-container">
-        <div className="input-group">
-          <textarea
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={canSendMessage() 
-              ? "Ask me about your contract documents..." 
-              : "Complete setup to start chatting"}
-            className="message-input"
-            rows={2}
-            disabled={!canSendMessage() || isLoading}
-          />
-          <button
-            onClick={sendMessage}
-            disabled={!canSendMessage() || !inputMessage.trim() || isLoading}
-            className="send-button"
-            title="Send message (Enter)"
-          >
-            {isLoading ? '⏳' : '📤'}
-          </button>
-        </div>
+      {/* Input Area */}
+      <div className="flex items-center space-x-2">
+        <textarea
+          value={inputMessage}
+          onChange={(e) => setInputMessage(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder={
+            canSendMessage()
+              ? 'Ask me about your contract documents...'
+              : 'Complete setup to start chatting'
+          }
+          className="input-base flex-1 resize-none"
+          rows={2}
+          disabled={!canSendMessage() || isLoading}
+        />
+        <Button
+          variant="primary"
+          size="md"
+          onClick={sendMessage}
+          disabled={!canSendMessage() || !inputMessage.trim() || isLoading}
+        >
+          {isLoading ? '⏳' : '📤'}
+        </Button>
       </div>
     </div>
   );
