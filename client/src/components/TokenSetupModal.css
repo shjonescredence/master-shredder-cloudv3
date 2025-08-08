@@ -1,4 +1,4 @@
-/* Token Setup Modal Styles */
+/* Token Setup Modal - Glass Morphism Design System */
 
 .token-setup-overlay {
   position: fixed;
@@ -16,15 +16,15 @@
 }
 
 .token-setup-modal {
-  background: linear-gradient(135deg, rgba(40, 40, 60, 0.95) 0%, rgba(30, 30, 50, 0.95) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 2.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(10px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   animation: modalSlideIn 0.4s ease-out;
 }
@@ -32,18 +32,20 @@
 .setup-step {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 24px;
 }
 
 /* Header Styles */
 .setup-header {
   text-align: center;
+  margin-bottom: 24px;
 }
 
 .setup-icon {
   font-size: 3rem;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
   display: block;
+  opacity: 0.8;
 }
 
 .setup-icon.spinning {

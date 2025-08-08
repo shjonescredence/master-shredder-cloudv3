@@ -69,7 +69,7 @@ router.post('/validate-token', async (req, res) => {
 
 /**
  * GET /api/settings/models
- * Get available OpenAI models for a given API key
+ * Get available OpenAI models for a given API key with smart recommendations
  */
 router.post('/models', async (req, res) => {
   try {
@@ -84,17 +84,80 @@ router.post('/models', async (req, res) => {
 
     // Import the function here to avoid circular dependencies
     const { getAvailableModels } = await import('../services/openaiClient.cloud.js');
+    const { SmartModelSelector } = await import('../services/smartModelSelector.js');
+    
     const models = await getAvailableModels(apiKey);
+    const selector = SmartModelSelector.getInstance();
+    const report = selector.getModelReport(models);
 
     res.json({
       success: true,
-      models
+      models,
+      smart_analysis: {
+        total_models: report.total,
+        categories: report.by_category,
+        recommendations: report.recommendations,
+        top_ranked: report.top_models.slice(0, 5),
+        future_ready: report.future_ready,
+        auto_update_ready: true
+      },
+      timestamp: new Date().toISOString()
     });
   } catch (error: any) {
     console.error('Models fetch error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch available models'
+    });
+  }
+});
+
+/**
+ * POST /api/settings/model-recommendation
+ * Get smart model recommendation for specific use case
+ */
+router.post('/model-recommendation', async (req, res) => {
+  try {
+    const { apiKey, useCase = 'chat_primary' } = req.body;
+    
+    if (!apiKey) {
+      return res.status(400).json({
+        success: false,
+        error: 'API key is required'
+      });
+    }
+
+    const { getAvailableModels } = await import('../services/openaiClient.cloud.js');
+    const { SmartModelSelector } = await import('../services/smartModelSelector.js');
+    
+    const models = await getAvailableModels(apiKey);
+    const selector = SmartModelSelector.getInstance();
+    
+    const recommendedModel = selector.getModelForUseCase(useCase, models);
+    const recommendations = selector.getRecommendations(models);
+
+    res.json({
+      success: true,
+      recommended_model: recommendedModel,
+      use_case: useCase,
+      all_recommendations: recommendations,
+      available_use_cases: [
+        'chat_primary',
+        'chat_fallback', 
+        'document_analysis',
+        'fast_responses',
+        'cost_effective',
+        'reasoning_heavy',
+        'audio_capable',
+        'search_capable',
+        'image_capable'
+      ]
+    });
+  } catch (error: any) {
+    console.error('Model recommendation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get model recommendation'
     });
   }
 });
@@ -107,7 +170,7 @@ router.get('/config', (req, res) => {
   res.json({
     success: true,
     config: {
-      defaultModel: process.env.DEFAULT_MODEL || 'gpt-4-turbo',
+      defaultModel: process.env.DEFAULT_MODEL || 'gpt-4o',
       allowUserTokens: true,
       systemTokenAvailable: !!process.env.OPENAI_SECRET_NAME,
       environment: process.env.NODE_ENV || 'development',
