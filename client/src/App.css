@@ -36,7 +36,6 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   position: relative;
   overflow-x: hidden;
@@ -705,21 +704,33 @@ body {
   .app-container {
     padding: 15px;
   }
-  
   .main-layout {
     height: 95vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    display: grid;
   }
-  
-  /* Stack panels vertically on tablets */
-  .panel.chat-panel {
-    grid-column: 1 / -1 !important;
+  .upload-panel {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 16px;
+  }
+  .assistant-panel {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 16px;
+  }
+  .chat-panel {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding: 0;
     min-height: 500px;
   }
-  
-  .panel.settings-panel {
+  .settings-panel {
     grid-column: 1 / -1 !important;
     margin-top: 15px;
     min-height: 300px;
+    display: none; /* Hide on tablet */
   }
 }
 
@@ -864,6 +875,10 @@ body {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
+
+
+
+
 
 .panel::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.3);
@@ -1728,36 +1743,7 @@ input:checked + .toggle-slider:before {
   }
 }
 
-@media (max-width: 968px) {
-  /* Stack panels vertically on tablets */
-  .main-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr auto;
-    height: calc(100vh - 80px);
-  }
-  
-  .upload-panel {
-    grid-column: 1;
-    grid-row: 1;
-    padding: 16px;
-  }
-  
-  .assistant-panel {
-    grid-column: 2;
-    grid-row: 1;
-    padding: 16px;
-  }
-  
-  .chat-panel {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    padding: 0;
-  }
-  
-  .settings-panel {
-    display: none; /* Hide on tablet */
-  }
-}
+
 
 @media (max-width: 768px) {
   body {
@@ -1803,8 +1789,6 @@ input:checked + .toggle-slider:before {
     font-size: 11px;
     padding: 0.75rem;
   }
-}
-
 }
 
 /* High performance mode for older devices */
@@ -2695,27 +2679,7 @@ input:checked + .toggle-slider:before {
   }
 }
 
-@media (max-width: 968px) {
-  /* Stack panels vertically on tablets */
-  .main-layout {
-  .upload-panel {
-    grid-column: 1;
-    grid-row: 1;
-    padding: 16px;
-  }
-  
-  .assistant-panel {
-    grid-column: 2;
-    grid-row: 1;
-    padding: 16px;
-  }
-  
-  .chat-panel {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    padding: 0;
-  }
-}
+
 
 @media (max-width: 768px) {
   body {

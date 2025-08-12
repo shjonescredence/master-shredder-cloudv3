@@ -2,7 +2,7 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx,css}", // Added css to ensure Tailwind scans all CSS files
   ],
   darkMode: 'class',
   theme: {
@@ -92,14 +92,14 @@ export default {
           '0%':   { transform: 'translateY(-10px)', opacity: '0' },
           '100%': { transform: 'translateY(0)',      opacity: '1' },
         },
-        fade-in:   { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+        'fade-in':   { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
         'scale-in':{
           '0%':   { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)',    opacity: '1' },
         },
         'bounce-subtle':{'0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5px)' }},
-        shimmer:       {'0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' }},
-        ripple:        {'0%': { transform: 'scale(0)', opacity: '1' }, '100%': { transform: 'scale(4)', opacity: '0' }},
+        'shimmer':       {'0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' }},
+        'ripple':        {'0%': { transform: 'scale(0)', opacity: '1' }, '100%': { transform: 'scale(4)', opacity: '0' }},
       },
       transitionTimingFunction: {
         'bounce-in': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
